@@ -9,15 +9,6 @@ import re
 imgur_hold = []
 page_count = 1
 page_max = 954
-if page_count > 1 and page_count < page_max + 1:
-    page = "/page-"
-    count = page_count + 1
-elif page_count == 1:
-    page = "/"
-    count = ""
-else:
-    print("We're All Done Here")
-    sys.exit(0)
 
 
 while page_count <= page_max:
@@ -32,18 +23,15 @@ while page_count <= page_max:
         sys.exit(0)
     page_count = page_count + 1
     bass_thread = "https://www.avsforum.com/threads/the-ultimate-list-of-bass-in-movies-w-frequency-charts.2763785" + page + str(count) + " | grep -i imgur | grep url"
-    print(bass_thread)
-     
-'''
-print(bass_thread)
-img_finder = subprocess.Popen('curl -s ' + bass_thread, shell=True, stdout=subprocess.PIPE)
-for imgfind in img_finder.stdout:
-    imgfind = imgfind.decode()
-    imgfind = imgfind.rstrip()
-    imgfind = re.findall(r'data-url=\"(.*)\" alt',imgfind)
-    print(imgfind[0]) 
-'''
-
+    img_finder = subprocess.Popen('curl -s ' + bass_thread, shell=True, stdout=subprocess.PIPE)
+    for imgfind in img_finder.stdout:
+        imgfind = imgfind.decode()
+        imgfind = imgfind.rstrip()
+        imgfind = re.findall(r'data-url=\"(.*)\" alt*=',imgfind)
+        for ifind in imgfind:            
+            imgfnd = ifind.split(" ")
+            print(bass_thread)
+            print(imgfnd[0]) 
 
 
 '''
