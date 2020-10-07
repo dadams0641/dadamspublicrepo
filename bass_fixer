@@ -6,12 +6,12 @@ import subprocess
 import sys
 import re
 
-imgur_hold = []
+hold_this_dict = {}
 page_count = 1
 page_max = 954
 
 
-while page_count <= page_max:
+while page_count <= 20:
     if page_count > 1 and page_count < page_max + 1:
         page = "/page-"
         count = page_count
@@ -22,16 +22,25 @@ while page_count <= page_max:
         print("We're All Done Here")
         sys.exit(0)
     page_count = page_count + 1
-    bass_thread = "https://www.avsforum.com/threads/the-ultimate-list-of-bass-in-movies-w-frequency-charts.2763785" + page + str(count) + " | grep -i imgur | grep url"
+    bass_thread = "https://www.avsforum.com/threads/the-ultimate-list-of-bass-in-movies-w-frequency-charts.2763785" + page + str(count)
     img_finder = subprocess.Popen('curl -s ' + bass_thread, shell=True, stdout=subprocess.PIPE)
     for imgfind in img_finder.stdout:
         imgfind = imgfind.decode()
         imgfind = imgfind.rstrip()
-        imgfind = re.findall(r'data-url=\"(.*)\" alt*=',imgfind)
-        for ifind in imgfind:            
+        igf = re.findall(r'data-url=\"(http.*imgur.*)\" alt*=',imgfind)
+        title_find = re.findall(r': .*center\"><b>(.*)<',imgfind)
+        for titfind in title_find:
+            title = titfind
+            #print(title)
+            hold_this_dict[title]=''
+        for ifind in igf:            
             imgfnd = ifind.split(" ")
-            print(bass_thread)
-            print(imgfnd[0]) 
+            #print(imgfnd[0]) 
+            hold_this_dict.update( {title : imgfnd[0]} )
+
+
+for this_dict in hold_this_dict:
+    print(this_dict, hold_this_dict[this_dict])
 
 
 '''
