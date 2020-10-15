@@ -6,7 +6,7 @@ import subprocess
 import sys
 import re
 
-hold_this_dict = {}
+bass_dict = {}
 page_count = 1
 page_max = 954
 
@@ -32,15 +32,15 @@ while page_count <= 20:
         for titfind in title_find:
             title = titfind
             #print(title)
-            hold_this_dict[title]=''
+            hold_bass_dict[title]=''
         for ifind in igf:            
             imgfnd = ifind.split(" ")
             #print(imgfnd[0]) 
-            hold_this_dict.update( {title : imgfnd[0]} )
+            hold_bass_dict.update( {title : imgfnd[0]} )
 
 
-for this_dict in hold_this_dict:
-    print(this_dict, hold_this_dict[this_dict])
+for bass_dict in hold_bass_dict:
+    print(bass_dict, hold_bass_dict[bass_dict])
 
 
 '''
