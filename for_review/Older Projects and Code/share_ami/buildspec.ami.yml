@@ -1,0 +1,7 @@
+version: 0.2
+phases:
+  build:
+    commands:
+      - pip install ansible
+      - pip install pywinrm
+      - python env_vars

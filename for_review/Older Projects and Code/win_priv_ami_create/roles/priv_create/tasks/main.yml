@@ -1,0 +1,59 @@
+ - name: Test Date Gather
+   shell: date | awk '{print $2$3$6}'
+   register: date_output
+
+ - set_fact:
+     date: "{{date_output.stdout_lines[0]}}"
+
+ - name: Create private AMI from CIS Instance
+   ec2_ami:
+     name: "RES_{{app|upper}}_Win_{{date}}"
+     instance_id: "{{item}}"
+     state: present
+     root_device_name: /dev/sda1
+     device_mapping: 
+       - device_name: /dev/sda1
+         volume_size: 50
+         delete_on_termination: true
+         volume_type: gp2
+     tags:
+       automation: 'Ansible {{ ansible_version.string }}'
+       TechnicalOwner: RES_DevOps
+     wait: yes
+     wait_timeout: 900
+   with_lines: cat ./res_instance_id
+
+ - name: Determine Private AMI ID and Save It To File
+   ec2_ami_facts:
+     filters:
+       name: "RES_{{app|upper}}_Win_{{date}}"
+     region: "{{ lookup('aws_ssm', '/privami/region') }}"
+   register: output_res_ami_id
+
+ - set_fact:
+     res_id: "{{output_res_ami_id.images[0].image_id}}"
+
+ - set_fact:
+     ami_name: "{{output_res_ami_id.images[0].name}}"
+
+ - name: Write AMI Name for "{{app|upper}}" to Paramter Store
+   aws_ssm_parameter_store:
+     name: "/ci/res_ami_{{app|lower}}_hardened_name"
+     description: "The AMI Name for {{app|upper}}"
+     value: "{{ami_name}}"
+
+ - name: Write AMI ID for "{{app|upper}}" to Paramter Store
+   aws_ssm_parameter_store:
+     name: "/ci/res_ami_{{app|lower}}_hardened_id"
+     description: "The AMI ID for {{app|upper}}"
+     value: "{{res_id}}"
+
+ - name: Copy AMI ID To File Just In Case
+   local_action: copy content={{res_id}} dest=./res_ami_id
+
+ - name: Stop Running Instance To Prevent Over Billing 
+   ec2_instance:
+     state: absent
+     filters:
+     instance_ids: "{{item}}"
+   with_lines: cat ./res_instance_id

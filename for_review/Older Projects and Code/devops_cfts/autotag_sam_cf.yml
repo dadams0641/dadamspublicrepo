@@ -1,0 +1,36 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+
+Resources:
+  TagChecker:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: rdk_autotag.start
+      CodeUri: ./rdk_autotag.py 
+      Runtime: python2.7
+      Timeout: 99
+      MemorySize: 256
+      Events:
+        WeeklyRun:
+          Type: Schedule
+          Properties: { Schedule: 'rate(7 days)' }
+      Policies:
+        - Version: '2012-10-17' # Policy Document
+          Statement:
+          - Effect: "Allow"
+            Action:
+              - "ec2:DescribeInstances"
+              - "ec2:DescribeTags"
+              - "ec2:CreateTags"
+            Resource: "*"
+        - AWSLambdaBasicExecutionRole
+      Tags:
+        TechnicalOwner: "David Adams"
+
+
+Outputs:
+  MyFunc:
+    Value: !GetAtt TagChecker.Arn
+    Description: Lambda function ARN

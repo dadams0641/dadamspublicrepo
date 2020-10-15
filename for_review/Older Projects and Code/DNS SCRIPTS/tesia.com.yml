@@ -1,0 +1,188 @@
+Description: tesia.com Route53 Zone and DNS records
+Parameters:
+  DefaultTTL:
+    Type: Number
+    Description: Default lifetime for DNS records
+    Default: 3600
+Resources:
+  tesia:
+    Type: AWS::Route53::HostedZone
+    Properties:
+      HostedZoneConfig:
+        Comment: !Sub tesia - see CFN stack '${AWS::StackName}'
+      Name: tesia.com.
+  Root:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: tesia
+      HostedZoneId: !Ref tesia
+      Name: tesia.com.
+      ResourceRecords:
+      - 162.247.141.77
+      TTL: !Ref DefaultTTL
+      Type: A
+  Mailrecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Mailrecord
+      HostedZoneId: !Ref tesia
+      Name: tesia.com.
+      ResourceRecords:
+      - 10 alt3.aspmx.l.google.com.
+      - 5 alt1.aspmx.l.google.com.
+      - 10 alt4.aspmx.l.google.com.
+      - 1 aspmx.l.google.com.
+      - 5 alt2.aspmx.l.google.com.
+      TTL: !Ref DefaultTTL
+      Type: MX
+  TXT:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: TXT
+      HostedZoneId: !Ref tesia
+      Name: tesia.com.
+      ResourceRecords:
+      - '"google-site-verification=xuWjrmLpIlKN4qRSW_9ufGieOqF-QtfgfmhAtCgD5tE"'
+      - '"MS=ms81137039"'
+      TTL: !Ref DefaultTTL
+      Type: TXT
+  SPF:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: tesia
+      HostedZoneId: !Ref tesia
+      Name: tesia.com.
+      ResourceRecords:
+      - '"v=spf1 include:_spf.google.com include:_spf.sendergen.com ~all"'
+      TTL: !Ref DefaultTTL
+      Type: SPF
+  DMARC:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: DMARC
+      HostedZoneId: !Ref tesia
+      Name: _dmarc.tesia.com.
+      ResourceRecords:
+      - '"v=DMARC1; p=none; rua=mailto:vpaaxg37@ag.dmarcian.com, mailto:ACole@dentalhero.com"'
+      TTL: !Ref DefaultTTL
+      Type: TXT
+  DKIM:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: DKIM
+      HostedZoneId: !Ref tesia
+      Name: google._domainkey.tesia.com.
+      ResourceRecords:
+      - '"v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDEsu/PW5OcVFkrDUlwaTvzsVHwiujvc6p3wx0UGURSx+0pGkR9/+iV1Hu991It7g5iBMP0xTH+MaAcEmtZOXTYKtx58DDNqxVWG1D6lkYDy94A03WgoXPHaK2X58vsnWUwkWNMdvYr4kTssPjvb0BPDAskrARmkBqXSwO8q2HzNQIDAQAB"'
+      TTL: !Ref DefaultTTL
+      Type: TXT
+  SIPFederationTLS:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: SIPFederationTLS
+      HostedZoneId: !Ref tesia
+      Name: _sipfederationtls._tcp.tesia.com.
+      ResourceRecords:
+      - 100 1 5061 sipfed.online.lync.com.
+      TTL: !Ref DefaultTTL
+      Type: SRV
+  SIPLS:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: SIPTLS
+      HostedZoneId: !Ref tesia
+      Name: _sip._tls.tesia.com.
+      ResourceRecords:
+      - 100 1 443 sipdir.online.lync.com.
+      TTL: !Ref DefaultTTL
+      Type: SRV
+  Autodiscover:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Autodiscover
+      HostedZoneId: !Ref tesia
+      Name: autodiscover.tesia.com.
+      ResourceRecords:
+      - mail.r-mail.com.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  DZC:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: DZC
+      HostedZoneId: !Ref tesia
+      Name: dzc.tesia.com.
+      ResourceRecords:
+      - '"PJqbPw3a"'
+      TTL: !Ref DefaultTTL
+      Type: TXT
+  lyncdiscover:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: lyncdiscover
+      HostedZoneId: !Ref tesia
+      Name: lyncdiscover.tesia.com.
+      ResourceRecords:
+      - webdir.online.lync.com.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  SIP:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: SIP
+      HostedZoneId: !Ref tesia
+      Name: SIP.tesia.com.
+      ResourceRecords:
+      - sipdir.online.lync.com.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  Smart:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Smart
+      HostedZoneId: !Ref tesia
+      Name: smart.tesia.com.
+      ResourceRecords:
+      - whs.sendergen.com.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  SMTP:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: SMTP
+      HostedZoneId: !Ref tesia
+      Name: smtp.tesia.com.
+      ResourceRecords:
+      - 67.98.30.115
+      TTL: !Ref DefaultTTL
+      Type: A
+  WWW:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: WWW
+      HostedZoneId: !Ref tesia
+      Name: www.tesia.com.
+      ResourceRecords:
+      - 162.247.141.77
+      TTL: !Ref DefaultTTL
+      Type: A
+#@                       A	162.247.141.77
+#@                       MX	10	alt3.aspmx.l.google.com.
+#@                       MX	5	alt1.aspmx.l.google.com.
+#@                       MX	10	alt4.aspmx.l.google.com.
+#@                       MX	1	aspmx.l.google.com.
+#@                       MX	5	alt2.aspmx.l.google.com.
+#@                       TXT	( "google-site-verification=xuWjrmLpIlKN4qRSW_9ufGieOqF-QtfgfmhAtCgD5tE" )
+#@                       TXT	( "MS=ms81137039" )
+#@                       TXT	( "v=spf1 include:_spf.google.com include:_spf.sendergen.com ~all" )
+#_dmarc                  TXT	( "v=DMARC1; p=none; rua=mailto:vpaaxg37@ag.dmarcian.com, mailto:ACole@dentalhero.com" )
+#google._domainkey       TXT	( "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDEsu/PW5OcVFkrDUlwaTvzsVHwiujvc6p3wx0UGURSx+0pGkR9/+iV1Hu991It7g5iBMP0xTH+MaAcEmtZOXTYKtx58DDNqxVWG1D6lkYDy94A03WgoXPHaK2X58vsnWUwkWNMdvYr4kTssPjvb0BPDAskrARmkBqXSwO8q2HzNQIDAQAB" )
+#_sipfederationtls._tcp  SRV	100 1 5061	sipfed.online.lync.com.
+#_sip._tls               SRV	100 1 443	sipdir.online.lync.com.
+#autodiscover            CNAME	mail.r-mail.com.
+#dzc                     TXT	( "PJqbPw3a" )
+#lyncdiscover            CNAME	webdir.online.lync.com.
+#sip                     CNAME	sipdir.online.lync.com.
+#smart                   CNAME	whs.sendergen.com.
+#smtp                    A	67.98.30.115
+#www                     A	162.247.141.77

@@ -1,0 +1,46 @@
+Description: realtimeclaims.com Route53 Zone and DNS records
+Parameters:
+  DefaultTTL:
+    Type: Number
+    Description: Default lifetime for DNS records
+    Default: 3600
+Resources:
+  realtimeclaims:
+    Type: AWS::Route53::HostedZone
+    Properties:
+      HostedZoneConfig:
+        Comment: !Sub   realtimeclaims   -    see CFN stack '${AWS::StackName}'
+      Name: realtimeclaims.com.
+  AS2:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: realtimeclaims
+      HostedZoneId: !Ref realtimeclaims
+      Name: as2.realtimeclaims.com.
+      ResourceRecords:
+      - 184.175.188.247
+      TTL: !Ref DefaultTTL
+      Type: A
+  FTP:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: realtimeclaims
+      HostedZoneId: !Ref realtimeclaims
+      Name: ftp.realtimeclaims.com.
+      ResourceRecords:
+      - 184.175.188.248
+      TTL: !Ref DefaultTTL
+      Type: A
+  SPF:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: realtimeclaims
+      HostedZoneId: !Ref realtimeclaims
+      Name: realtimeclaims.com.
+      ResourceRecords:
+      - '"v=spf1 a ~all"'
+      TTL: !Ref DefaultTTL
+      Type: SPF 
+#@                       TXT	( "v=spf1 a ~all" )
+#as2                     A	184.175.188.247
+#ftp                     A	184.175.188.248

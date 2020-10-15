@@ -1,0 +1,24 @@
+Description: services.tesiabridge.com Route53 Zone and DNS records
+Parameters:
+  DefaultTTL:
+    Type: Number
+    Description: Default lifetime for DNS records
+    Default: 3600
+Resources:
+  servicestesiabridge:
+    Type: AWS::Route53::HostedZone
+    Properties:
+      HostedZoneConfig:
+        Comment: !Sub services.tesiabridge - see CFN stack '${AWS::StackName}'
+      Name: services.tesiabridge.com.
+  WWW:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: services.tesiabridge
+      HostedZoneId: !Ref servicestesiabridge
+      Name: services.tesiabridge.com.
+      ResourceRecords:
+      - 67.98.30.118
+      TTL: !Ref DefaultTTL
+      Type: A
+#www                     A	67.98.30.118

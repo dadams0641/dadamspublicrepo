@@ -1,0 +1,25 @@
+Resources:
+  StackShackUploader:
+    Type: AWS::IAM::User
+    Properties:
+      Path: /AzureDevops/
+      ManagedPolicyArns:
+        - !Ref 'StackShackUploadPolicy'
+  StackShackUploadPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Path: /AzureDevops/
+      Description: Policy to allow users/roles to upload objects to the CI artifact bucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Action:
+              - s3:ListAllMyBuckets
+            Resource: '*'
+            Effect: Allow
+          - Action:
+              - s3:PutObject
+              - s3:List*
+              - s3:Get*
+            Resource: arn:aws:s3:::ci-upload-artifacts-496307432785-us-east-2/*
+            Effect: Allow

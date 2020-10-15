@@ -1,0 +1,51 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  - none
+
+schedules:
+- cron: "00 01 1 * *"
+  displayName: Monthly 1AM Build
+  branches:
+    include:
+    - master
+
+pool:
+  vmImage: 'Ubuntu-16.04'
+
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.6'
+    architecture: 'x64'
+- script: |
+    pip install -U pip setuptools
+    echo See file://aka.ms/yaml
+    pip install cfn-lint awscli
+    pip install ansible
+    curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+    sudo apt-get update
+    sudo apt-get install curl apt-transport-https lsb-release gnupg
+    curl -sL https://packages.microsoft.com/keys/microsoft.asc | \
+        gpg --dearmor | \
+        sudo tee /etc/apt/trusted.gpg.d/microsoft.asc.gpg > /dev/null
+    AZ_REPO=$(lsb_release -cs)
+    echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | \
+        sudo tee /etc/apt/sources.list.d/azure-cli.list
+    sudo apt-get update
+    sudo apt-get install azure-cli
+    az extension add --name azure-devops
+  displayName: 'Install Base Software'
+
+- task: AWSShellScript@1
+  inputs:
+    awsCredentials: 'AWS_Build_Trigger_Corp'
+    inlineScript: |
+      cd $(find /home/vsts/ -name "win_trigger.yml" -exec dirname {} \; 2>/dev/null | head -n1)
+      ansible-playbook -c local win_trigger.yml -vvv
+    scriptType: inline
+    regionName: 'us-east-2'
+  displayName: 'Run Build Trigger'

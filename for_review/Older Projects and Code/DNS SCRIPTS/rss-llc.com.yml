@@ -1,0 +1,475 @@
+Description: rss-llc.com Route53 Zone and DNS records
+Parameters:
+  DefaultTTL:
+    Type: Number
+    Description: Default lifetime for DNS records
+    Default: 3600
+Resources:
+  rssllc:
+    Type: AWS::Route53::HostedZone
+    Properties:
+      HostedZoneConfig:
+        Comment: !Sub rssllc - see CFN stack '${AWS::StackName}'
+      Name: rss-llc.com.
+  Root:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: rssllc
+      HostedZoneId: !Ref rssllc
+      Name: rss-llc.com.
+      ResourceRecords:
+      - 184.175.188.229
+      TTL: !Ref DefaultTTL
+      Type: A
+  MailRecord1:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: MailRecord1
+      HostedZoneId: !Ref rssllc
+      Name: rss-llc.com.
+      ResourceRecords:
+      - 10 alt3.aspmx.l.google.com.
+      - 10 alt4.aspmx.l.google.com.
+      - 1 aspmx.l.google.com.
+      - 5 alt1.aspmx.l.google.com.
+      - 5 alt2.aspmx.l.google.com.
+      TTL: !Ref DefaultTTL
+      Type: MX
+  TXT1:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: TXT1
+      HostedZoneId: !Ref rssllc
+      Name: rss-llc.com.
+      ResourceRecords:
+      - '"MS=ms52988069"'
+      - '"google-site-verification=5nFWGOR2O8BqObkMEf02POrRXmcs0wwkpfqzFySPV1o"'
+      TTL: !Ref DefaultTTL
+      Type: TXT
+  SPF:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: TXT1
+      HostedZoneId: !Ref rssllc
+      Name: rss-llc.com.
+      ResourceRecords:
+      - '"v=spf1 include:_spf.google.com include:_spf.sendergen.com ~all"'
+      TTL: !Ref DefaultTTL
+      Type: SPF
+  DMARC:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: TXT1
+      HostedZoneId: !Ref rssllc
+      Name: _dmarc.rss-llc.com.
+      ResourceRecords:
+      - '"v=DMARC1; p=none; rua=mailto:vpaaxg37@ag.dmarcian.com, mailto:ACole@dentalhero.com"'
+      TTL: !Ref DefaultTTL
+      Type: TXT
+  DKIM:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: TXT1
+      HostedZoneId: !Ref rssllc
+      Name: google._domainkey.rss-llc.com.
+      ResourceRecords:
+      - '"v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDAr3/um6MbcB2uHfMnhHHLpB5R5PezEqV2S5xqVMPDAvMaRIIvDh4fQGS+L/VnJnuF0iebGjJeGdc4hkP1bvpzCdjakZA5jLiMxDqXTEs5qlbS7gKfwLkrFoufuOU39/koXaeMzb4rpQ9RL2dUN7/jLHzq2ZX2fHupuP8DbHqI1QIDAQAB"'
+      TTL: !Ref DefaultTTL
+      Type: TXT
+  SIPFederationTLS:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: SIPFederationTLS
+      HostedZoneId: !Ref rssllc
+      Name: _sipfederationtls._tcp.rss-llc.com.
+      ResourceRecords:
+      - 100 1 5061 sipfed.online.lync.com.
+      TTL: !Ref DefaultTTL
+      Type: SRV
+  SIPTLS:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: SIPTLS
+      HostedZoneId: !Ref rssllc
+      Name: _sip._tls.rss-llc.com.
+      ResourceRecords:
+      - 100 1 5061 sipfed.online.lync.com.
+      TTL: !Ref DefaultTTL
+      Type: SRV
+  Attach:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Attach
+      HostedZoneId: !Ref rssllc
+      Name: attach.rss-llc.com.
+      ResourceRecords:
+      - 184.175.158.7
+      TTL: !Ref DefaultTTL
+      Type: A
+  Auth:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Auth
+      HostedZoneId: !Ref rssllc
+      Name: auth.rss-llc.com.
+      ResourceRecords:
+      - 184.175.188.236
+      TTL: !Ref DefaultTTL
+      Type: A
+  AutoDiscover:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: AutoDiscover
+      HostedZoneId: !Ref rssllc
+      Name: autodiscover.rss-llc.com.
+      ResourceRecords:
+      - mail.r-mail.com.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  BackUp:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: BackUp
+      HostedZoneId: !Ref rssllc
+      Name: backup.rss-llc.com.
+      ResourceRecords:
+      - 67.98.30.105
+      TTL: !Ref DefaultTTL
+      Type: A
+  Beta:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Beta
+      HostedZoneId: !Ref rssllc
+      Name: beta.rss-llc.com.
+      ResourceRecords:
+      - 4.58.56.101
+      TTL: !Ref DefaultTTL
+      Type: A
+  BlmtADFSRSS:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: BlmtADFSRSS
+      HostedZoneId: !Ref rssllc
+      Name: blmt-adfs-rss.rss-llc.com.
+      ResourceRecords:
+      - 184.175.188.236
+      TTL: !Ref DefaultTTL
+      Type: A
+  Bs1:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Bs1
+      HostedZoneId: !Ref rssllc
+      Name: bs1.rss-llc.com.
+      ResourceRecords:
+      - 67.98.30.120
+      TTL: !Ref DefaultTTL
+      Type: A
+  Bs2:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Bs2
+      HostedZoneId: !Ref rssllc
+      Name: bs2.rss-llc.com.
+      ResourceRecords:
+      - 67.98.30.121
+      TTL: !Ref DefaultTTL
+      Type: A
+  Connect:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Connect
+      HostedZoneId: !Ref rssllc
+      Name: connect.rss-llc.com.
+      ResourceRecords:
+      - 184.175.188.226
+      TTL: !Ref DefaultTTL
+      Type: A
+  CRM:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: CRM
+      HostedZoneId: !Ref rssllc
+      Name: crm.rss-llc.com.
+      ResourceRecords:
+      - renaissanceelectronicservices.rss-llc.com.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  Des:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Des
+      HostedZoneId: !Ref rssllc
+      Name: des.rss-llc.com.
+      ResourceRecords:
+      - 184.175.188.236
+      TTL: !Ref DefaultTTL
+      Type: A
+  Dev:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Dev
+      HostedZoneId: !Ref rssllc
+      Name: dev.rss-llc.com.
+      ResourceRecords:
+      - 67.98.30.104
+      TTL: !Ref DefaultTTL
+      Type: A
+  EnterpriseEnrollment:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: EnterpriseEnrollment
+      HostedZoneId: !Ref rssllc
+      Name: enterpriseenrollment.rss-llc.com.
+      ResourceRecords:
+      - enterpriseenrollment.manage.microsoft.com.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  EnterpriseRegistration:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: EnterpriseRegistration
+      HostedZoneId: !Ref rssllc
+      Name: enterpriseregistration.rss-llc.com.
+      ResourceRecords:
+      - enterpriseregistration.windows.net.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  Feedback:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Feedback
+      HostedZoneId: !Ref rssllc
+      Name: feedback.rss-llc.com.
+      ResourceRecords:
+      - renaissance.uservoice.com.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  FTP:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: FTP
+      HostedZoneId: !Ref rssllc
+      Name: ftp.rss-llc.com.
+      ResourceRecords:
+      - 67.98.30.100
+      TTL: !Ref DefaultTTL
+      Type: A
+  FTP3:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: FTP3
+      HostedZoneId: !Ref rssllc
+      Name: ftp3.rss-llc.com.
+      ResourceRecords:
+      - 4.58.56.99
+      TTL: !Ref DefaultTTL
+      Type: A
+  Helpdesk:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Helpdesk
+      HostedZoneId: !Ref rssllc
+      Name: helpdesk.rss-llc.com.
+      ResourceRecords:
+      - 67.98.30.118
+      TTL: !Ref DefaultTTL
+      Type: A
+  Info:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Info
+      HostedZoneId: !Ref rssllc
+      Name: info.rss-llc.com.
+      ResourceRecords:
+      - webhost5.hubspot.net.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  LyncDiscover:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: LyncDiscover
+      HostedZoneId: !Ref rssllc
+      Name: lyncdiscover.rss-llc.com.
+      ResourceRecords:
+      - webhost5.hubspot.net.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  Mail:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Mail
+      HostedZoneId: !Ref rssllc
+      Name: mail.rss-llc.com.
+      ResourceRecords:
+      - 67.98.30.99
+      TTL: !Ref DefaultTTL
+      Type: A
+  Mail2:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Mail2
+      HostedZoneId: !Ref rssllc
+      Name: mail2.rss-llc.com.
+      ResourceRecords:
+      - 67.98.30.109
+      TTL: !Ref DefaultTTL
+      Type: A
+  MSOID:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: MSOID
+      HostedZoneId: !Ref rssllc
+      Name: msoid.rss-llc.com.
+      ResourceRecords:
+      - clientconfig.microsoftonline-p.net.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  Projects:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Projects
+      HostedZoneId: !Ref rssllc
+      Name: projects.rss-llc.com.
+      ResourceRecords:
+      - 10.1.1.56
+      TTL: !Ref DefaultTTL
+      Type: A
+  Punch:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Punch
+      HostedZoneId: !Ref rssllc
+      Name: punch.rss-llc.com.
+      ResourceRecords:
+      - 4.58.56.98
+      TTL: !Ref DefaultTTL
+      Type: A
+  Radar:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Radar
+      HostedZoneId: !Ref rssllc
+      Name: radar.rss-llc.com.
+      ResourceRecords:
+      - 4.58.56.100
+      TTL: !Ref DefaultTTL
+      Type: A
+  Redmine:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Redmine
+      HostedZoneId: !Ref rssllc
+      Name: redmine.rss-llc.com.
+      ResourceRecords:
+      - 4.58.56.110
+      TTL: !Ref DefaultTTL
+      Type: A
+  Renaissanceelectronicservices:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Renaissanceelectronicservices
+      HostedZoneId: !Ref rssllc
+      Name: renaissanceelectronicservices.rss-llc.com.
+      ResourceRecords:
+      - 184.175.188.236
+      TTL: !Ref DefaultTTL
+      Type: A
+  Reports:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Reports
+      HostedZoneId: !Ref rssllc
+      Name: reports.rss-llc.com.
+      ResourceRecords:
+      - 69.212.184.151
+      TTL: !Ref DefaultTTL
+      Type: A
+  Rico:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Rico
+      HostedZoneId: !Ref rssllc
+      Name: rico.rss-llc.com.
+      ResourceRecords:
+      - 67.98.30.99
+      TTL: !Ref DefaultTTL
+      Type: A
+  Rove:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Rove
+      HostedZoneId: !Ref rssllc
+      Name: rove.rss-llc.com.
+      ResourceRecords:
+      - 4.58.56.100
+      TTL: !Ref DefaultTTL
+      Type: A
+  Sandbox:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Sandbox
+      HostedZoneId: !Ref rssllc
+      Name: sandbox.rss-llc.com.
+      ResourceRecords:
+      - 68.253.60.229
+      TTL: !Ref DefaultTTL
+      Type: A
+  Secure:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Secure
+      HostedZoneId: !Ref rssllc
+      Name: secure.rss-llc.com.
+      ResourceRecords:
+      - 67.98.30.109
+      TTL: !Ref DefaultTTL
+      Type: A
+#renaissanceelectronicservices A	184.175.188.236
+#reports                 A	69.212.184.151
+#rico                    A	67.98.30.99
+#rove                    A	4.58.56.100
+#sandbox                 A	68.253.60.229
+#secure                  A	67.98.30.109
+#@     ]                  A	184.175.188.229
+#@                       MX	10	alt3.aspmx.l.google.com.
+#@                       MX	10	alt4.aspmx.l.google.com.
+#@                       MX	1	aspmx.l.google.com.
+#@                       MX	5	alt1.aspmx.l.google.com.
+#@                       MX	5	alt2.aspmx.l.google.com.
+#@                       TXT	( "MS=ms52988069" )
+#@                       TXT	( "google-site-verification=5nFWGOR2O8BqObkMEf02POrRXmcs0wwkpfqzFySPV1o" )
+#@                       TXT	( "v=spf1 include:_spf.google.com include:_spf.sendergen.com ~all" )
+#@                       RP	jraimondi@rss-llc.com.	.
+#_dmarc                  TXT	( "v=DMARC1; p=none; rua=mailto:vpaaxg37@ag.dmarcian.com, mailto:ACole@dentalhero.com" )
+#google._domainkey       TXT	( "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDAr3/um6MbcB2uHfMnhHHLpB5R5PezEqV2S5xqVMPDAvMaRIIvDh4fQGS+L/VnJnuF0iebGjJeGdc4hkP1bvpzCdjakZA5jLiMxDqXTEs5qlbS7gKfwLkrFoufuOU39/koXaeMzb4rpQ9RL2dUN7/jLHzq2ZX2fHupuP8DbHqI1QIDAQAB" )
+#_sipfederationtls._tcp  SRV	100 1 5061	sipfed.online.lync.com.
+#_sip._tls               SRV	100 1 443	sipdir.online.lync.com.
+#attach                  A	184.175.158.7
+#auth                    A	184.175.188.236
+#autodiscover            CNAME	mail.r-mail.com.
+#backup                  A	67.98.30.105
+#beta                    A	4.58.56.101
+#blmt-adfs-rss           A	184.175.188.236
+#bs1                     A	67.98.30.120
+#bs2                     A	67.98.30.121
+#connect                 A	184.175.188.226
+#crm                     CNAME	renaissanceelectronicservices.rss-llc.com.
+#des                     A	184.175.188.236
+#dev                     A	67.98.30.104
+#enterpriseenrollment    CNAME	enterpriseenrollment.manage.microsoft.com.
+#enterpriseregistration  CNAME	enterpriseregistration.windows.net.
+#feedback                CNAME	renaissance.uservoice.com.
+#ftp                     A	67.98.30.100
+#ftp3                    A	4.58.56.99
+#helpdesk                A	67.98.30.118
+#info                    CNAME	webhost5.hubspot.net.
+#lyncdiscover            CNAME	webdir.online.lync.com.
+#mail                    A	67.98.30.99
+#mail2                   A	67.98.30.109
+#msoid                   CNAME	clientconfig.microsoftonline-p.net.
+#projects                A	10.1.1.56
+#punch                   A	4.58.56.98
+#radar                   A	4.58.56.100
+#redmine                 A	4.58.56.110

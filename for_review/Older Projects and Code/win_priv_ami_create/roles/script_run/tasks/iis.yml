@@ -1,0 +1,48 @@
+ - set_fact:
+     new_ec2: "{{item}}"
+   with_lines: cat ./res_instance_ip_address
+
+ - add_host:
+     hostname: "{{new_ec2}}"
+     ansible_user: administrator
+     ansible_password: "{{ lookup('aws_ssm', '/privami/userpass') }}" 
+     ansible_connection: winrm
+     ansible_winrm_transport: ntlm
+     ansible_winrm_server_cert_validation: ignore
+
+ - name: Copy Files To Host
+   win_copy: 
+     remote_src: no
+     src: "{{item}}"
+     dest: c:\temp\
+   with_items:
+     - "files/iis_install.ps1"
+     - "files/cda_install.ps1"
+   delegate_to: "{{new_ec2}}"
+
+ - name: Install IIS
+   win_command: powershell c:\temp\iis_install.ps1
+   args:
+     chdir: c:\ 
+   delegate_to: "{{new_ec2}}"
+
+ - name: Install CodeDeploy Agent
+   win_command: powershell c:\temp\cda_install.ps1
+   args:
+     chdir: c:\
+   delegate_to: "{{new_ec2}}"
+
+ - name: Install DotNet Framework 472
+   win_command: NDP472-KB4054530-x86-x64-AllOS-ENU.exe /passive
+   args:
+     chdir: c:\temp\
+   delegate_to: "{{new_ec2}}"
+   ignore_errors: true
+
+ - name: Wait For Connection
+   wait_for_connection:
+   delegate_to: "{{new_ec2}}"
+
+ - name: Set permissions for Child Objects under IISApp
+   win_command: powershell icacls C:\inetpub\IISApp /inheritance:e /T
+   ignore_errors: true

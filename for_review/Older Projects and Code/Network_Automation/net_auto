@@ -1,0 +1,9 @@
+- hosts: localhost
+  gather_facts: False
+  vars_files:
+    - "group_vars/all/{{env}}"
+  roles:
+    - vpc
+    - security_groups
+    - igw
+    - subnet

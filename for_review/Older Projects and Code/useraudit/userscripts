@@ -1,0 +1,62 @@
+#!/usr/bin/env python3
+
+import boto3
+import sys
+import json 
+import yaml
+from datetime import datetime
+from dateutil import tz
+
+
+account_info = boto3.client('sts')
+iamdeets = boto3.client('iam')
+utctime = tz.gettz('UTC')
+localtime = tz.tzlocal()
+today = datetime.today()
+today = today.replace(tzinfo=localtime)
+userlist = iamdeets.list_users()
+j = open('data.yml', 'a')
+
+account = account_info.get_caller_identity()
+account_id = account['Account']
+
+for x in userlist['Users']:
+    user = x['UserName']
+    userdeets = iamdeets.get_user(UserName=user)
+    akeydeets = iamdeets.list_access_keys(UserName=user) 
+    user = userdeets['User']['UserName']
+    uid = userdeets['User']['UserId']
+    createdate = userdeets['User']['CreateDate']
+    createdate = createdate.replace(tzinfo=utctime)
+    newcreate = createdate.astimezone(localtime)
+    timedelta = abs((today - newcreate).days)
+    print("[" + user + "]")
+    print("     UserID is " + uid)
+    print("     User Created " + str(newcreate.strftime('%Y-%m-%d')))
+    print("     Account is " + str(timedelta) + " days old.")
+    try:
+        lastpass = userdeets['User']['PasswordLastUsed']
+        lastpass = lastpass.replace(tzinfo=utctime)
+        newlast = lastpass.astimezone(localtime)
+        lastdelta = abs((today - newlast).days)
+        print("     [" + user + "] last signed in " + str(lastdelta) + " days ago.")
+    except:
+        lastdelta = "None"
+        print("     User [" + user + "] has never signed in using a password.")
+        pass
+    for ak in akeydeets['AccessKeyMetadata']:
+        akey = ak['AccessKeyId']
+        keydate = ak['CreateDate']
+        keydate = keydate.replace(tzinfo=utctime)
+        newdate = keydate.astimezone(localtime)
+        keydelta = abs((today - newdate).days)
+        print("     Access Key " + akey + " is " + str(keydelta) + " days old.")
+        userinfo = {
+            user: {
+                'UserID': uid, 
+                'AccountAge': str(timedelta) + " Days", 
+                'CreateDate': str(newcreate.strftime("%Y-%m-%d")), 
+                'AccessKey': akey, 
+                'KeyAge': str(keydelta) + " Days", 
+                'LastSignIn': str(lastdelta)}}
+        ymlout = yaml.dump(userinfo, j, indent=4, default_flow_style=False)

@@ -1,0 +1,36 @@
+---
+Description: >
+  CF to create the EC2 role for reading from S3 in corp
+
+Resources:
+  S3DownloadAgentsRole:
+     Type: AWS::IAM::Role
+     Properties:
+       RoleName: S3DownloadAgents 
+       AssumeRolePolicyDocument:
+         Version: '2012-10-17'
+         Statement:
+           - Effect: Allow
+             Principal: {Service: ec2.amazonaws.com}
+             Action: sts:AssumeRole
+       Policies:
+         - PolicyName: ec2S3ReadAgent
+           PolicyDocument: 
+             Version: "2012-10-17"
+             Statement:
+               - Effect: Allow
+                 Action: 
+                   - "s3:Get*"
+                   - "s3:List*"
+                 Resource:
+                   - !Sub 'arn:aws:s3:::res-installers-${AWS::AccountId}-${AWS::Region}'
+                   - !Sub 'arn:aws:s3:::res-installers-${AWS::AccountId}-${AWS::Region}/*'
+               - Effect: "Allow"
+                 Action: "s3:ListAllMyBuckets"
+                 Resource: "*"
+  S3DownloadAgentProfile:
+     Type: AWS::IAM::InstanceProfile
+     Properties:
+       InstanceProfileName : S3DownloadAgent
+       Roles : 
+         - !Ref S3DownloadAgentsRole

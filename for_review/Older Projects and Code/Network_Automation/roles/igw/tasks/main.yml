@@ -1,0 +1,9 @@
+ - name: "Create Internet Gateway Within {{ env | upper }}"
+   ec2_vpc_igw:
+     aws_access_key: "{{ aws_access_key }}"
+     aws_secret_key: "{{ aws_secret_key }}"
+     state: present
+     vpc_id: "{{vpcid}}"
+     tags:
+       Name: "{{resname}}_{{env|upper}}_IGW"
+     region: "{{region}}" 

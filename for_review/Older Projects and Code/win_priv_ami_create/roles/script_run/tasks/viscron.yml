@@ -1,0 +1,37 @@
+ - set_fact:
+     new_ec2: "{{item}}"
+   with_lines: cat ./res_instance_ip_address
+
+ - add_host:
+     hostname: "{{new_ec2}}"
+     ansible_user: administrator
+     ansible_password: "{{ lookup('aws_ssm', '/privami/userpass') }}" 
+     ansible_connection: winrm
+     ansible_winrm_transport: ntlm
+     ansible_winrm_server_cert_validation: ignore
+
+ - name: Copy Files To Host
+   win_copy: 
+     remote_src: no
+     src: "{{item}}"
+     dest: c:\temp\
+   with_items:
+     - "files/viscron_install.ps1"
+     - "files/VC-Settings.zip"
+     - "files/activateviscron.ps1"
+   delegate_to: "{{new_ec2}}"
+
+ - name: Run Powershell Scripts
+   win_command: powershell c:\temp\viscron_install.ps1
+   args:
+     chdir: c:\ 
+   delegate_to: "{{new_ec2}}"
+
+ - name: Copy CMD To Host For Startup
+   win_copy:
+     remote_src: no
+     src: "{{item}}"
+     dest: C:\Users\Administrator\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\startup.cmd
+   with_items:
+     - "files/startup.cmd"
+   delegate_to: "{{new_ec2}}"

@@ -1,0 +1,39 @@
+ - name: "Create Public Subnets within {{ env | upper }}"
+   ec2_vpc_subnet:
+     aws_access_key: "{{ aws_access_key }}"
+     aws_secret_key: "{{ aws_secret_key }}"
+     state: present
+     az: "us-{{zone}}-{{avl[item.0]}}"
+     cidr: "{{pub_subnet_cidr[item.0]}}"
+     vpc_id: "{{vpcid}}"
+     tags:
+       Name: "{{resname}}_{{env|upper}}_PUBLIC_SUBNET{{item.0 + 1}}"
+     region: "{{region}}"
+   with_indexed_items:
+     - "{{pub_subnet_cidr}}"
+   register: pubsubdebugout
+
+ - name: Create Output Files and Variables for Public
+   local_action:  copy content={{pubsubdebugout.results[item.0].subnet.id}} dest=./{{env}}pubsubnetid{{item.0 + 1}}id.dav
+   with_indexed_items:
+     - "{{pub_subnet_cidr}}"
+
+ - name: "Create Private Subnets within {{ env | upper }}"
+   ec2_vpc_subnet:
+     aws_access_key: "{{ aws_access_key }}"
+     aws_secret_key: "{{ aws_secret_key }}"
+     state: present
+     az: "us-{{zone}}-{{avl[item.0]}}"
+     cidr: "{{priv_subnet_cidr[item.0]}}"
+     vpc_id: "{{vpcid}}" 
+     tags:
+       Name: "{{resname}}_{{env|upper}}_PRIVATE_SUBNET{{item.0 + 1}}"
+     region: "{{region}}"
+   with_indexed_items:
+     - "{{priv_subnet_cidr}}"
+   register: privsubdebugout
+
+ - name: Create Output Files and Variables for Private Subnet
+   local_action:  copy content={{privsubdebugout.results[item.0].subnet.id}} dest=./{{env}}privsubnetid{{item.0 + 1}}id.dav
+   with_indexed_items:
+     - "{{priv_subnet_cidr}}"

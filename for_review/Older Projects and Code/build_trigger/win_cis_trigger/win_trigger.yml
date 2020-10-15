@@ -1,0 +1,50 @@
+- hosts: localhost
+  gather_facts: False
+  tasks:
+    - name: Set Current AMI as Variable
+      ec2_ami_facts:
+        owners: 679593333241
+        filters:
+          product-code: ai8cek5mwyt2uijw3iwymdrkv
+          platform: windows
+      register: output_cis
+
+    - set_fact:
+       curr_ocis_amiid: "{{ (output_cis.images | sort(attribute='creation_date') | list)[-1].image_id}}"
+
+    - debug:
+        var: curr_ocis_amiid
+
+    - name: Set Current RES AMI ID as Variable
+      set_fact:
+        res_id: "{{ lookup('aws_ssm', '/ci/current_win_cis_id') }}"
+
+    - debug:
+        var:  res_id  
+
+
+    - name: Get AWS Secrets
+      shell: aws secretsmanager get-secret-value --secret-id 'AZDevOpsUser' --output text | awk {'print $4'} | sed -e 's/[\"{}]//g' -e 's/[a-z].*://g'
+      register: secretoutput
+
+    - set_fact:
+        passwd: "{{secretoutput.stdout}}"
+
+    - debug:
+        var: passwd
+
+    - block:
+        - name: Determine if Build is Necessary
+          debug:
+            msg: "No need to trigger build"
+
+        - meta: end_host
+      when: res_id == curr_ocis_amiid
+      
+    - block:
+        - name: Create New RES Private AMI. 
+          debug:
+            msg: "Starting new build"
+      
+        - shell: "az login -u 'azdevops@rss-llc.com' -p '{{passwd}}' --allow-no-subscriptions; az pipelines build queue --org https://dev.azure.com/RenaissanceElectronicServices2/ --branch master --project 'Cloud Automation Scripts' --definition-id 87"
+      when: res_id != curr_ocis_amiid

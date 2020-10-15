@@ -1,0 +1,18 @@
+---
+Description: >
+  CF for creating S3 buckets
+
+Resources: 
+  RESBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'sam-artifacts-${AWS::AccountId}-${AWS::Region}'
+      Tags:
+        - 
+          Key: TechnicalOwner
+          Value: David Adams 
+
+Outputs:
+  BucketName:
+    Value: !Ref 'RESBucket'
+    Description: Name of the S3 Bucket Created.

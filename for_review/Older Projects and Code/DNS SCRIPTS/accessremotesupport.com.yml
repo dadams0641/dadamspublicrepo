@@ -1,0 +1,38 @@
+Description: accessremotesupport.com Route53 Zone and DNS records
+Parameters:
+  DefaultTTL:
+    Type: Number
+    Description: Default lifetime for DNS records
+    Default: 3600
+Resources:
+  Zone:
+    Type: AWS::Route53::HostedZone
+    Properties:
+      HostedZoneConfig:
+        Comment: !Sub AccessRemoteSupport - see CFN stack '${AWS::StackName}'
+      Name: accessremotesupport.com.
+  www:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: accessremotesupport
+      HostedZoneName: accessremotesupport.com.
+      Name: www.accessremotesupport.com.
+      ResourceRecords:
+      - 67.98.30.118
+      TTL: !Ref DefaultTTL
+      Type: A
+  Root:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: accessremotesupport
+      HostedZoneName: accessremotesupport.com.
+      Name: accessremotesupport.com.
+      ResourceRecords:
+      - 67.98.30.118
+      TTL: !Ref DefaultTTL
+      Type: A
+#;  Zone records
+#;
+#
+#@                       A	67.98.30.118
+#www                     A	67.98.30.118

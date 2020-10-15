@@ -1,0 +1,37 @@
+---
+Description: >
+  CF for creating One-Off EC2 Instances
+
+Parameters:
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: A VPC ID to run the Instance
+  SubId:
+    Type: AWS::EC2::Subnet::Id
+    Description: A subnet ID to run the Instance 
+  SgId:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: A Security Group ID to run the Instance
+
+
+Resources: 
+  DAdamsInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.medium
+      SecurityGroupIds: 
+        - !Ref SgId
+      SubnetId: !Ref SubId
+      ImageId: 'ami-0743f4f65de602218'  
+      KeyName: "win_test"
+      BlockDeviceMappings:
+        - DeviceName: "/dev/sda1"
+          Ebs:
+            VolumeType: gp2
+            VolumeSize: 30
+            DeleteOnTermination: true 
+      InstanceInitiatedShutdownBehavior: stop
+      Tags:
+        - 
+          Key: TechnicalOwner
+          Value: David Adams 

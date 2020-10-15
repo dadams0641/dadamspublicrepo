@@ -1,0 +1,12 @@
+ - name: "Create Route Tables within {{ env | upper }}"
+   ec2_vpc_route_table:
+     aws_access_key: "{{ aws_access_key }}"
+     aws_secret_key: "{{ aws_secret_key }}"
+     state: present
+     vpc_id: "{{vpcid}}"
+     tags:
+       Name: "{{resname}}_{{env|upper}}_Route_Table" 
+     region: "{{region}}" 
+   routes:
+     - 
+

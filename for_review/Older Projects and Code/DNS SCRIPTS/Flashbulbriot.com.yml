@@ -1,0 +1,82 @@
+Description: flashbulbriot.com Route53 Zone and DNS records
+Parameters:
+  DefaultTTL:
+    Type: Number
+    Description: Default lifetime for DNS records
+    Default: 3600
+Resources:
+  flashbulbriot:
+    Type: AWS::Route53::HostedZone
+    Properties:
+      HostedZoneConfig:
+        Comment: !Sub   flashbulbriot   -    see CFN stack '${AWS::StackName}'
+      Name: flashbulbriot.com.
+  Root:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: flashbulbriot
+      HostedZoneId: !Ref flashbulbriot
+      Name: flashbulbriot.com.
+      ResourceRecords:
+      - 67.98.30.118
+      TTL: !Ref DefaultTTL
+      Type: A
+  www:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: flashbulbriot
+      HostedZoneId: !Ref flashbulbriot
+      Name: flashbulbriot.com.
+      ResourceRecords:
+      - 67.98.30.118
+      TTL: !Ref DefaultTTL
+      Type: A
+  smtp:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: flashbulbriot
+      HostedZoneId: !Ref flashbulbriot
+      Name: smtp.flashbulbriot.com.
+      ResourceRecords:
+      - 67.98.30.115
+      TTL: !Ref DefaultTTL
+      Type: A
+  dev:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: flashbulbriot
+      HostedZoneId: !Ref flashbulbriot
+      Name: dev.flashbulbriot.com.
+      ResourceRecords:
+      - 70.34.148.14
+      TTL: !Ref DefaultTTL
+      Type: A
+  SPF:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: flashbulbriot
+      HostedZoneId: !Ref flashbulbriot
+      Name: dev.flashbulbriot.com.
+      ResourceRecords:
+      - '"v=spf1 mx ip4:67.98.30.113 ip4:184.175.188.240 -all"'
+      TTL: !Ref DefaultTTL
+      Type: SPF
+  MailRecord1:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: flashbulbriot
+      HostedZoneId: !Ref flashbulbriot
+      Name: flashbulbriot.com.
+      ResourceRecords:
+      - 10 smtp.res-llc.com.
+      TTL: !Ref DefaultTTL
+      Type: MX        
+#;  Zone records
+#;
+#
+#@                       A	67.98.30.118
+#@                       MX	10	smtp.res-llc.com.
+#@                       TXT	( "v=spf1 mx ip4:67.98.30.113 ip4:184.175.188.240 -all" )
+#dev                     A	70.34.148.14
+#smtp                    A	67.98.30.115
+#www                     A	67.98.30.118

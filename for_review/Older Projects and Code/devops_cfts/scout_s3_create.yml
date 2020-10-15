@@ -1,0 +1,41 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  CF for creating the ScoutSuite Bucket
+
+Resources: 
+  ScoutBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'scoutrunner-${AWS::AccountId}-${AWS::Region}'
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: 404.html
+      Tags:
+        - 
+          Key: TechnicalOwner
+          Value: David Adams
+  ScoutBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref 'ScoutBucket'
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: '*'
+            Action: s3:GetObject
+            Resource: !Sub '${ScoutBucket.Arn}/*'
+            Condition:
+              IpAddress:
+                aws:SourceIp:
+                  - 184.175.188.226
+                  - 96.94.232.81
+                  - 52.2.140.103
+                  - 35.155.152.37
+                  - 54.77.189.190
+                  - 18.191.101.92
+
+Outputs:
+  BucketName:
+    Value: !Ref 'ScoutBucket'

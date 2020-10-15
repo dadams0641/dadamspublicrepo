@@ -1,0 +1,7 @@
+ - name: Create private AMI from CIS Instance
+   ec2_ami:
+     image_id: "{{ lookup('aws_ssm', '/ci/res_ami_iis_hardened_id)' }}"
+     state: present
+     launch_permissions:
+       user_ids: ["{{share_ids}}"]
+

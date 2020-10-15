@@ -1,0 +1,71 @@
+Description: ddsglovebox.com Route53 Zone and DNS records
+Parameters:
+  DefaultTTL:
+    Type: Number
+    Description: Default lifetime for DNS records
+    Default: 3600
+Resources:
+  DDSGloveBox:
+    Type: AWS::Route53::HostedZone
+    Properties:
+      HostedZoneConfig:
+        Comment: !Sub ddsglovebox - see CFN stack '${AWS::StackName}'
+      Name: ddsglovebox.com.
+  www:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: ddsglovebox
+      HostedZoneId: !Ref DDSGloveBox
+      Name: www.ddsglovebox.com.
+      ResourceRecords:
+      - 13.66.48.242
+      TTL: !Ref DefaultTTL
+      Type: A
+  Root:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: ddsglovebox
+      HostedZoneId: !Ref DDSGloveBox
+      Name: ddsglovebox.com.
+      ResourceRecords:
+      - 13.66.48.242
+      TTL: !Ref DefaultTTL
+      Type: A
+  Smtp:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: outgoing SMTP service
+      HostedZoneId: !Ref DDSGloveBox
+      Name: smtp.ddsglovebox.com.
+      ResourceRecords:
+      - mail.res-llc.com
+      TTL: !Ref DefaultTTL
+      Type: MX
+      Type: CNAME
+  Autodiscover:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: redirect for OWA
+      HostedZoneId: !Ref DDSGloveBox
+      Name: autodiscover.ddsglovebox.com.
+      ResourceRecords:
+      - mail.r-mail.com.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  MailRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: res-llc mail redirect
+      HostedZoneId: !Ref DDSGloveBox
+      Name: ddsglovebox.com
+      ResourceRecords:
+      - 10 smtp.res-llc.com.
+      TTL: !Ref DefaultTTL
+      Type: MX
+#;  Zone records
+#;
+#
+#@                       A	13.66.48.242
+#@                       MX	10	smtp.res-llc.com.
+#autodiscover            CNAME	mail.r-mail.com.
+#smtp                    CNAME	mail.res-llc.com.

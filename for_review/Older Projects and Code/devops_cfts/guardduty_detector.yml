@@ -1,0 +1,12 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CF for implementing Guard Duty in RES'
+
+
+Resources:
+  resdetector:
+    Type: AWS::GuardDuty::Detector
+    Properties:
+      Enable: true 
+      FindingPublishingFrequency: "TWENTY_MINUTES"
+

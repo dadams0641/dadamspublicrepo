@@ -1,0 +1,25 @@
+- name: "Find Windows CIS AMI"
+  ec2_ami_facts:
+    owners: 679593333241
+    filters:
+      product-code: ai8cek5mwyt2uijw3iwymdrkv
+      platform: windows
+  register: output_cis
+
+- debug:
+    var: output_cis
+
+- set_fact:
+   ocis_amiid: "{{ (output_cis.images | sort(attribute='creation_date') | list)[-1].image_id}}"
+- debug:
+    var: ocis_amiid
+
+- name: Copy AMI ID To File Just In Case
+  local_action:  copy content={{ocis_amiid}} dest=./ami_id_output
+
+- name: Write Current CIS AMI ID to SSM
+  aws_ssm_parameter_store:
+    name: "/ci/current_win_cis_id"
+    description: "The current AMI ID for CIS Windows Server"
+    value: "{{ocis_amiid}}"
+

@@ -1,0 +1,301 @@
+Description: dentalhero.com Route53 Zone and DNS records
+Parameters:
+  DefaultTTL:
+    Type: Number
+    Description: Default lifetime for DNS records
+    Default: 3600
+Resources:
+  Dentalhero:
+    Type: AWS::Route53::HostedZone
+    Properties:
+      HostedZoneConfig:
+        Comment: !Sub Dentalhero - see CFN stack '${AWS::StackName}'
+      Name: dentalhero.com.
+  Root:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: dentalhero
+      HostedZoneId: !Ref Dentalhero
+      Name: dentalhero.com.
+      ResourceRecords:
+      - 162.247.141.77
+      TTL: !Ref DefaultTTL
+      Type: A
+  www:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: dentalhero
+      HostedZoneId: !Ref Dentalhero
+      Name: www.dentalhero.com.
+      ResourceRecords:
+      - dentalhero.com
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  jobvite:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: dentalhero
+      HostedZoneId: !Ref Dentalhero
+      Name: jobvite.dentalhero.com.
+      ResourceRecords:
+      - dentalhero.com
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  Smtp:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: outgoing SMTP service
+      HostedZoneId: !Ref Dentalhero
+      Name: smtp.dentalhero.com.
+      ResourceRecords:
+      - mail.res-llc.com
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  Autodiscover:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: redirect for OWA
+      HostedZoneId: !Ref Dentalhero
+      Name: autodiscover.dentalhero.com.
+      ResourceRecords:
+      - mail.r-mail.com.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  S1DomainKey:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: S1DomainKey
+      HostedZoneId: !Ref Dentalhero
+      Name: s1._domainkey.dentalhero.com.
+      ResourceRecords:
+      - s1.domainkey.u5263084.wl085.sendgrid.net.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  S2DomainKey:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: S2DomainKey
+      HostedZoneId: !Ref Dentalhero
+      Name: s2._domainkey.dentalhero.com.
+      ResourceRecords:
+      - s2.domainkey.u5263084.wl085.sendgrid.net.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  Barracuda1:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Barracuda1
+      HostedZoneId: !Ref Dentalhero
+      Name: barracuda143915178786.dentalhero.com.
+      ResourceRecords:
+      - encrypt.barracudanetworks.com.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  Barracuda2:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Barracuda2
+      HostedZoneId: !Ref Dentalhero
+      Name: barracuda515353178785.dentalhero.com.
+      ResourceRecords:
+      - encrypt.barracudanetworks.com.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  GoogleCalendar:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: GoogleCalendar
+      HostedZoneId: !Ref Dentalhero
+      Name: calendar.dentalhero.com.
+      ResourceRecords:
+      - ghs.googlehosted.com.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  GoogleDrive:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: GoogleDrive
+      HostedZoneId: !Ref Dentalhero
+      Name: drive.dentalhero.com.
+      ResourceRecords:
+      - ghs.googlehosted.com.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  Info:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: GoogleDrive
+      HostedZoneId: !Ref Dentalhero
+      Name: info.dentalhero.com.
+      ResourceRecords:
+      - secure.pageserve.co.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  LyncDiscover:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: GoogleDrive
+      HostedZoneId: !Ref Dentalhero
+      Name: lyncdiscover.dentalhero.com.
+      ResourceRecords:
+      - webdir.online.lync.com.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  GMail:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: GMail
+      HostedZoneId: !Ref Dentalhero
+      Name: mail.dentalhero.com.
+      ResourceRecords:
+      - ghs.googlehosted.com.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  Sendgrid:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Sendgrid
+      HostedZoneId: !Ref Dentalhero
+      Name: securemail1507.dentalhero.com.
+      ResourceRecords:
+      - u5263084.wl085.sendgrid.net.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  Sip:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Sip
+      HostedZoneId: !Ref Dentalhero
+      Name: sip.dentalhero.com.
+      ResourceRecords:
+      - sipdir.online.lync.com.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  Sendergen:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Sip
+      HostedZoneId: !Ref Dentalhero
+      Name: smart.dentalhero.com.
+      ResourceRecords:
+      - whs.sendergen.com.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  MailRecord1:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: MailRecord1
+      HostedZoneId: !Ref Dentalhero
+      Name: Dentalhero.com.
+      ResourceRecords:
+      - 5 alt2.aspmx.l.google.com.
+      - 1 aspmx.l.google.com.
+      - 10 alt4.aspmx.l.google.com
+      - 5 alt1.aspmx.l.google.com
+      - 10 alt3.aspmx.l.google.com
+      TTL: !Ref DefaultTTL
+      Type: MX
+  DomainSPF:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: GSuite SPF
+      HostedZoneId: !Ref Dentalhero
+      Name: dentalhero.com.
+      ResourceRecords:
+      - '"v=spf1 include:_spf.google.com include:_spf.sendergen.com ~all"'
+      TTL: !Ref DefaultTTL
+      Type: SPF
+  DomainVerify:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: GSuite Domain Verification
+      HostedZoneId: !Ref Dentalhero
+      Name: dentalhero.com.
+      ResourceRecords:
+      - '"google-site-verification=rlN1I8XF1Zu0z6HaY1IqTWwvtyKknV0YtTCsQe-yD30"'
+      TTL: !Ref DefaultTTL
+      Type: TXT
+  DMARC:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: GSuite DMARC
+      HostedZoneId: !Ref Dentalhero
+      Name: _dmarc.dentalhero.com.
+      ResourceRecords:
+      - '"v=DMARC1; p=none; rua=mailto:vpaaxg37@ag.dmarcian.com, mailto:ACole@dentalhero.com"'
+      TTL: !Ref DefaultTTL
+      Type: TXT
+  DKIM:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: GSuite DKIM
+      HostedZoneId: !Ref Dentalhero
+      Name: google._domainkey.dentalhero.com.
+      ResourceRecords:
+      - '"v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCMPDnAFsRzHYRK5RAPGeWIF4SDBMxhZpBNtk6jBXxpLqL1MEdlwAAcvvkJbHH5ZWSiw9yKb96PTEKVyRFLfJ8HlO0sJuElFYw7G8SEJKPHWXm6m1QHuIDWeHSgcGiVmop5LkM8Vbz4yFdL0QQ3XWz6bWs3oXVjLYcBwWEHlOecvwIDAQAB"'
+      TTL: !Ref DefaultTTL
+      Type: TXT
+  DKIM2:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Internal DKIM
+      HostedZoneId: !Ref Dentalhero
+      Name: system.management.automation.internal.host.internalhost.dentalhero.com.
+      ResourceRecords:
+      - '"v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCMPDnAFsRzHYRK5RAPGeWIF4SDBMxhZpBNtk6jBXxpLqL1MEdlwAAcvvkJbHH5ZWSiw9yKb96PTEKVyRFLfJ8HlO0sJuElFYw7G8SEJKPHWXm6m1QHuIDWeHSgcGiVmop5LkM8Vbz4yFdL0QQ3XWz6bWs3oXVjLYcBwWEHlOecvwIDAQAB"'
+      TTL: !Ref DefaultTTL
+      Type: TXT
+  SipFederationTLS:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: SipFederationTLS
+      HostedZoneId: !Ref Dentalhero
+      Name: _sipfederationtls._tcp.dentalhero.com.
+      ResourceRecords:
+      - 10 5 80 sipfed.online.lync.com.
+      TTL: !Ref DefaultTTL
+      Type: SRV
+  SipTLS:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: SipFederationTLS
+      HostedZoneId: !Ref Dentalhero
+      Name: _sip._tls.dentalhero.com.
+      ResourceRecords:
+      - 10 5 80 sipdir.online.lync.com.
+      TTL: !Ref DefaultTTL
+      Type: SRV
+#	  ;  Zone records
+#;
+#
+#@                       A	162.247.141.77
+#@                       MX	5	alt1.aspmx.l.google.com.
+#@                       MX	1	aspmx.l.google.com.
+#@                       MX	10	alt4.aspmx.l.google.com.
+#@                       MX	10	alt3.aspmx.l.google.com.
+#@                       MX	5	alt2.aspmx.l.google.com.
+#@                       TXT	( "MS=ms28307510" )
+#@                       TXT	( "v=spf1 include:_spf.google.com include:_spf.sendergen.com ~all" )
+#@                       TXT	( "google-site-verification=rlN1I8XF1Zu0z6HaY1IqTWwvtyKknV0YtTCsQe-yD30" )
+#_dmarc                  TXT	( "v=DMARC1; p=none; rua=mailto:vpaaxg37@ag.dmarcian.com, mailto:ACole@dentalhero.com" )
+#google._domainkey       TXT	( "v=DKIM1; k=rsa; #p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCMPDnAFsRzHYRK5RAPGeWIF4SDBMxhZpBNtk6jBXxpLqL1MEdlwAAcvvkJbHH5ZWSiw9yKb96PTEKVyRFLfJ8HlO0sJuElFYw7G8SEJKPHWXm6m1QHuIDWeHSgcGiVmop5LkM8Vbz4yFdL0QQ3XWz6bWs3oXVjLYcBwWEHlOecvwIDAQAB" )
+#s1._domainkey           CNAME	s1.domainkey.u5263084.wl085.sendgrid.net.
+#s2._domainkey           CNAME	s2.domainkey.u5263084.wl085.sendgrid.net.
+#_sipfederationtls._tcp  SRV	100 1 5061	sipfed.online.lync.com.
+#_sip._tls               SRV	100 1 443	sipdir.online.lync.com.
+#autodiscover            CNAME	mail.r-mail.com.
+#barracuda143915178786   CNAME	encrypt.barracudanetworks.com.
+#barracuda515353178785   CNAME	encrypt.barracudanetworks.com.
+#calendar                CNAME	ghs.googlehosted.com.
+#drive                   CNAME	ghs.googlehosted.com.
+#enterpriseenrollment    CNAME	enterpriseenrollment-s.manage.microsoft.com.
+#info                    CNAME	secure.pageserve.co.
+#system.management.automation.internal.host.internalhost TXT	( "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCMPDnAFsRzHYRK5RAPGeWIF4SDBMxhZpBNtk6jBXxpLqL1MEdlwAAcvvkJbHH5ZWSiw9yKb96PTEKVyRFLfJ8HlO0sJuElFYw7G8SEJKPHWXm6m1QHuIDWeHSgcGiVmop5LkM8Vbz4yFdL0QQ3XWz6bWs3oXVjLYcBwWEHlOecvwIDAQAB" )
+#jobvite                 A	162.247.141.77
+#lyncdiscover            CNAME	webdir.online.lync.com.
+#mail                    CNAME	ghs.googlehosted.com.
+#securemail1507          CNAME	u5263084.wl085.sendgrid.net.
+#sip                     CNAME	sipdir.online.lync.com.
+#smart                   CNAME	whs.sendergen.com.
+#smtp                    CNAME	mail.res-llc.com.
+#www                     CNAME	dentalhero.com.

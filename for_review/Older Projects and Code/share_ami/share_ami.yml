@@ -1,0 +1,38 @@
+- hosts: localhost
+  gather_facts: False
+  vars_files: ./share_vars.yml
+  tasks:
+    - name: Test Date Gather
+      shell: date | awk '{print $2$3$6}'
+      register: date_output
+
+    - set_fact:
+        date: "{{date_output.stdout_lines[0]}}"
+
+
+    - name: Set Variables for Later Use
+      set_fact:
+        ssm: "{{ lookup('aws_ssm', '/ci/res_ami_{{app}}_hardened_id') }}"
+
+    - name: Promote AMI from Corp to New Environment
+      ec2_ami:
+        image_id: "{{ lookup('aws_ssm', '/ci/res_ami_{{app}}_hardened_id') }}"
+        state: present
+        launch_permissions:
+          user_ids: "{{share_ids}}"
+
+    - name: Build Credentials for role assumption
+      sts_assume_role:
+        role_arn: "arn:aws:iam::{{share_id}}:role/AzureDevOps/AmiPipelineSsmManager"
+        role_session_name: "Corp2Dev"
+      register: assumed_role
+    
+    
+    - name: Apply AMI IDs into SSM Parameter Store
+      aws_ssm_parameter_store:
+        aws_access_key: "{{ assumed_role.sts_creds.access_key }}"
+        aws_secret_key: "{{ assumed_role.sts_creds.secret_key }}"
+        security_token: "{{ assumed_role.sts_creds.session_token }}"
+        name: "/azuredevops/res_ami_{{app|lower}}_hardened_id"
+        description: "The AMI ID for {{app|upper}}"
+        value: "{{ssm}}"

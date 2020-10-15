@@ -1,0 +1,68 @@
+Description: mytesia.com Route53 Zone and DNS records
+Parameters:
+  DefaultTTL:
+    Type: Number
+    Description: Default lifetime for DNS records
+    Default: 3600
+Resources:
+  mytesia:
+    Type: AWS::Route53::HostedZone
+    Properties:
+      HostedZoneConfig:
+        Comment: !Sub mytesia - see CFN stack '${AWS::StackName}'
+      Name: mytesia.com.
+  Root:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: mytesia
+      HostedZoneId: !Ref mytesia
+      Name: mytesia.com.
+      ResourceRecords:
+      - 184.175.188.229
+      TTL: !Ref DefaultTTL
+      Type: A
+  MailRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: mytesia
+      HostedZoneId: !Ref mytesia
+      Name: mytesia.com.
+      ResourceRecords:
+      - 10 smtp.res-llc.com.
+      TTL: !Ref DefaultTTL
+      Type: MX
+  MailRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: mytesia
+      HostedZoneId: !Ref mytesia
+      Name: mytesia.com.
+      ResourceRecords:
+      - '"v=spf1 mx ip4:67.98.30.113 ip4:184.175.188.240 -all"'
+      TTL: !Ref DefaultTTL
+      Type: SPF
+  SMTP:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: mytesia
+      HostedZoneId: !Ref mytesia
+      Name: smtp.mytesia.com.
+      ResourceRecords:
+      - 67.98.30.115
+      TTL: !Ref DefaultTTL
+      Type: A
+  WWW:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: mytesia
+      HostedZoneId: !Ref mytesia
+      Name: www.mytesia.com.
+      ResourceRecords:
+      - 184.175.188.229
+      TTL: !Ref DefaultTTL
+      Type: A
+#@                       A	184.175.188.229
+#@                       MX	10	smtp.res-llc.com.
+#@                       TXT	( "v=spf1 mx ip4:67.98.30.113 ip4:184.175.188.240 -all" )
+#smtp                    A	67.98.30.115
+#www                     A	184.175.188.229

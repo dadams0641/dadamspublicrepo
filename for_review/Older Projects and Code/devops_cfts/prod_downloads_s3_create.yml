@@ -1,0 +1,83 @@
+---
+Description: >
+  CF for creating S3 buckets
+
+Resources: 
+  RESBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'plugin-download-${AWS::AccountId}-${AWS::Region}'
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      Tags:
+        - 
+          Key: TechnicalOwner
+          Value: David Adams
+      LifecycleConfiguration:
+        Rules:
+        - Id: DeleteOldVersions
+          Status: Enabled
+          NoncurrentVersionExpirationInDays: 180
+        - Id: DeleteIncompleteUploads
+          AbortIncompleteMultipartUpload:
+            DaysAfterInitiation: 7
+          Status: Enabled
+      VersioningConfiguration:
+        Status: Enabled
+  Attachments:
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: AES256
+      BucketName: !Sub 'res-attch-${AWS::AccountId}-${AWS::Region}'
+      LifecycleConfiguration:
+        Rules:
+        - Id: ExpireOldUploads
+          AbortIncompleteMultipartUpload:
+            DaysAfterInitiation: 7
+          Prefix: '/'
+          Status: Enabled
+        - Id: ExpireOldVersions
+          NoncurrentVersionExpirationInDays: 60
+          Prefix: '/'
+          Status: Enabled
+      LoggingConfiguration:
+        DestinationBucketName: !Ref AttachmentsLogs 
+        LogFilePrefix: '/'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      VersioningConfiguration:
+        Status: Enabled
+    Type: AWS::S3::Bucket
+  AttachmentsLogs:
+    Properties:
+      AccessControl: LogDeliveryWrite
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: AES256
+      BucketName: download-log-delivery
+      LifecycleConfiguration:
+        Rules:
+        - Id: ExpireOldUploads
+          AbortIncompleteMultipartUpload:
+            DaysAfterInitiation: 7
+          Prefix: '/'
+          Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+    Type: AWS::S3::Bucket
+
+Outputs:
+  BucketName:
+    Value: !Ref 'RESBucket'
+    Description: Name of the S3 Bucket Created.

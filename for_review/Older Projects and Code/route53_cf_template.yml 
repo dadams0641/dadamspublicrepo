@@ -1,0 +1,34 @@
+- hosts: localhost
+  gather_facts: no
+  module_defaults:
+    group/aws:
+      region: us-east-2
+  tasks:
+    - cloudformation:
+        stack_name: '{{ item[0] }}'
+        template: '{{ item[1] }}'
+        tags:
+          Tool: 'Ansible {{ ansible_version.string }}'
+      with_items:
+        - [route53-communitysmiles-com, communitysmiles.com.yml]
+        - [route53-rdnllc-com, rdn-llc.com.yml]
+        - [route53-ci-deploy-roles, deploy-role.yml]
+        - [route53-wearerenaissance-com, wearerenaissance.com.yml]
+        - [route53-tesiasupport-com, tesiasupport.com.yml]
+        - [route53-tesiaportal-com, tesiaportal.com.yml]
+        - [route53-tpp-com, tesiapartnerportal.com.yml]
+        - [route53-servicestesiabridge-com, services.tesiabridge.com.yml]
+        - [route53-tesia-com, tesia.com.yml]
+        - [route53-rssllc-com, rss-llc.com.yml]
+        - [route53-rpractice-com, rpractice.com.yml]
+        - [route53-rmail-com, r-mail.com.yml]
+        - [route53-resllc-com, res-llc.com.yml]
+        - [route53-realtimeclaims-com, realtimeclaims.com.yml]
+        - [route53-patientpaycenter-com, patientpaycenter.com.yml]
+        - [route53-mytesia-com, Mytesia.com.yml]
+        - [route53-dentalhero-com, dentalhero.com.yml]
+        - [route53-lockboxservices-com, lockboxservices.com.yml]
+        - [route53-flashbulbriot-com, Flashbulbriot.com.yml]
+        - [route53-dentalheroes-com-URL-Spoofing, dentalheros.com.yml]
+        - [route53-ddsglovebox-com, ddsglovebox.com.yml]
+        - [route53-accessremotesupport-com, accessremotesupport.com.yml]

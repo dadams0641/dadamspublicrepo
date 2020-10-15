@@ -1,0 +1,92 @@
+Description: rpractice.com Route53 Zone and DNS records
+Parameters:
+  DefaultTTL:
+    Type: Number
+    Description: Default lifetime for DNS records
+    Default: 3600
+Resources:
+  rpractice:
+    Type: AWS::Route53::HostedZone
+    Properties:
+      HostedZoneConfig:
+        Comment: !Sub rpractice - see CFN stack '${AWS::StackName}'
+      Name: rpractice.com.
+  Root:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: rpractice
+      HostedZoneId: !Ref rpractice
+      Name: rpractice.com.
+      ResourceRecords:
+      - 184.175.188.238
+      TTL: !Ref DefaultTTL
+      Type: A
+  BillingSVC:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: BillingSVC
+      HostedZoneId: !Ref rpractice
+      Name: billingsvc.rpractice.com.
+      ResourceRecords:
+      - 184.175.158.9
+      TTL: !Ref DefaultTTL
+      Type: A
+  GrayDev:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: GrayDev
+      HostedZoneId: !Ref rpractice
+      Name: graydev.rpractice.com.
+      ResourceRecords:
+      - 184.175.188.253
+      TTL: !Ref DefaultTTL
+      Type: A
+  GrayQA:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: GrayQA
+      HostedZoneId: !Ref rpractice
+      Name: graydev.rpractice.com.
+      ResourceRecords:
+      - 184.175.188.253
+      TTL: !Ref DefaultTTL
+      Type: A
+  SPF:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: SPF
+      HostedZoneId: !Ref rpractice
+      Name: rpractice.com.
+      ResourceRecords:
+      - '"v=spf1 include:_spf.google.com include:_spf.sendergen.com ~all"'
+      TTL: !Ref DefaultTTL
+      Type: SPF
+  DKIM:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: SPF
+      HostedZoneId: !Ref rpractice
+      Name: google._domainkey.rpractice.com.
+      ResourceRecords:
+      - '"v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCMPDnAFsRzHYRK5RAPGeWIF4SDBMxhZpBNtk6jBXxpLqL1MEdlwAAcvvkJbHH5ZWSiw9yKb96PTEKVyRFLfJ8HlO0sJuElFYw7G8SEJKPHWXm6m1QHuIDWeHSgcGiVmop5LkM8Vbz4yFdL0QQ3XWz6bWs3oXVjLYcBwWEHlOecvwIDAQAB"'
+      TTL: !Ref DefaultTTL
+      Type: TXT
+  DMARC:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: SPF
+      HostedZoneId: !Ref rpractice
+      Name: _dmarc.rpractice.com.
+      ResourceRecords:
+      - '"v=DMARC1; p=none; rua=mailto:vpaaxg37@ag.dmarcian.com, mailto:ACole@dentalhero.com"'
+      TTL: !Ref DefaultTTL
+      Type: TXT
+#_dmarc                  TXT	( "v=DMARC1; p=none; rua=mailto:vpaaxg37@ag.dmarcian.com, mailto:ACole@dentalhero.com"
+#@                       A	184.175.188.238
+#@                       MX	10	smtp.res-llc.com.
+#@                       TXT	( "v=spf1 include:_spf.google.com include:_spf.sendergen.com ~all" )
+#@                       TXT	( "google-site-verification=2BnVYPfbvZXYe8mroS42xkXlYYhnoj8GDy0BlqR8-rA" )
+#google._domainkey       TXT	( "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCMPDnAFsRzHYRK5RAPGeWIF4SDBMxhZpBNtk6jBXxpLqL1MEdlwAAcvvkJbHH5ZWSiw9yKb96PTEKVyRFLfJ8HlO0sJuElFYw7G8SEJKPHWXm6m1QHuIDWeHSgcGiVmop5LkM8Vbz4yFdL0QQ3XWz6bWs3oXVjLYcBwWEHlOecvwIDAQAB" )
+#graydev                 A	184.175.188.253
+#grayqa                  A	184.175.188.253
+#smart                   CNAME	whs.sendergen.com.

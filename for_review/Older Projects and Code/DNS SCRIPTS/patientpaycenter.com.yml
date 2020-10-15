@@ -1,0 +1,68 @@
+Description: patientpaycenter.com Route53 Zone and DNS records
+Parameters:
+  DefaultTTL:
+    Type: Number
+    Description: Default lifetime for DNS records
+    Default: 3600
+Resources:
+  patientpaycenter:
+    Type: AWS::Route53::HostedZone
+    Properties:
+      HostedZoneConfig:
+        Comment: !Sub   patientpaycenter   -    see CFN stack '${AWS::StackName}'
+      Name: patientpaycenter.com.
+  Root:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: patientpaycenter
+      HostedZoneId: !Ref patientpaycenter
+      Name: patientpaycenter.com.
+      ResourceRecords:
+      - 184.175.158.6
+      TTL: !Ref DefaultTTL
+      Type: A 
+  DEVWWW:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: patientpaycenter
+      HostedZoneId: !Ref patientpaycenter
+      Name: dev-www.patientpaycenter.com.
+      ResourceRecords:
+      - 184.175.158.6
+      TTL: !Ref DefaultTTL
+      Type: A
+  TEST:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: patientpaycenter
+      HostedZoneId: !Ref patientpaycenter
+      Name: test.patientpaycenter.com.
+      ResourceRecords:
+      - 184.175.158.6
+      TTL: !Ref DefaultTTL
+      Type: A	
+  WWW:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: patientpaycenter
+      HostedZoneId: !Ref patientpaycenter
+      Name: www.patientpaycenter.com.
+      ResourceRecords:
+      - patientpaycenter.com
+      TTL: !Ref DefaultTTL
+      Type: CNAME  
+  Beta:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: patientpaycenter
+      HostedZoneId: !Ref patientpaycenter
+      Name: beta.patientpaycenter.com.
+      ResourceRecords:
+      - www.patientpaycenter.com.
+      TTL: !Ref DefaultTTL
+      Type: CNAME       
+#@                       A	184.175.158.6
+#beta                    CNAME	www.patientpaycenter.com.
+#dev-www                 A	184.175.158.6
+#test                    A	184.175.158.6
+#www                     CNAME	patientpaycenter.com.

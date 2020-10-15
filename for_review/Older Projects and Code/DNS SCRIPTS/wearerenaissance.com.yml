@@ -1,0 +1,13 @@
+Description: wearerenaissance.com Route53 Zone and DNS records
+Parameters:
+  DefaultTTL:
+    Type: Number
+    Description: Default lifetime for DNS records
+    Default: 3600
+Resources:
+  wearerenaissance:
+    Type: AWS::Route53::HostedZone
+    Properties:
+      HostedZoneConfig:
+        Comment: !Sub wearerenaissance - see CFN stack '${AWS::StackName}'
+      Name: wearerenaissance.com.

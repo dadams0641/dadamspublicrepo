@@ -1,0 +1,124 @@
+ - name: "Read AMI ID for use with EC2 Launch"
+   set_fact:
+     ami_id: "{{item}}"
+   with_lines: cat ./ami_id_output
+
+ - debug:
+     var: ami_id
+
+ - name: Gather EC2 Subnet Facts
+   ec2_vpc_subnet_facts:
+     region: "{{ lookup('aws_ssm', '/privami/region') }}" 
+     filters:
+       "tag:Name": "*Public*"
+   register: vpc_output
+
+ - set_fact:
+     subnet_id: "{{ lookup('env','Subnet_ID') }}"
+
+ - set_fact:
+     vpc_id: "{{ lookup('env','UsageVpcId') }}"
+
+ - ec2_group_facts:
+     filters:
+       vpc-id: "{{vpc_id}}"
+   register: sg_output
+
+ - set_fact:
+     sg_id: "{{ lookup('env','SG_ID') }}"
+
+
+ - name: Create Keypair Using Key_Material Obtained Using file lookup plugin
+   ec2_key:
+     name: win_test
+     key_material: "{{ lookup('file', './id_rsa.pub') }}"
+
+ - ec2_instance:
+     image_id: "{{ami_id}}"
+     state: present
+     instance_type: c5.xlarge
+     instance_role: "{{ir_arn}}"
+     tags:
+       use: "{{app}}" 
+     volumes:
+       - device_name: /dev/sda1
+         ebs:
+           volume_type: gp2
+           volume_size: 50
+           delete_on_termination: true
+     wait: yes
+     wait_timeout: 500
+     security_group: "{{sg_id}}" 
+     network:
+       assign_public_ip: true
+     vpc_subnet_id: "{{subnet_id}}"
+     key_name: win_test
+     user_data: | 
+       <powershell>
+       Start-Sleep -s 30
+       $admin = [adsi]("WinNT://./administrator, user")
+       $admin.PSBase.Invoke("SetPassword", "{{ lookup('aws_ssm', '/privami/userpass') }}")
+       $key = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced'
+       Set-ItemProperty $key Hidden 1
+       Set-ItemProperty $key HideFileExt 0
+       Set-ItemProperty $key ShowSuperHidden 1
+       cd c:\
+       mkdir temp
+       cd temp
+       $outname = "ConfigureRemotingForAnsible.ps1"
+       $url = "https://bitbucket.org/dadams0641/dadamspublicrepo/raw/4e0a4786ec7fc353803002e0722f3461c70b0123/ConfigureRemotingForAnsible.ps1"
+       [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+       Invoke-WebRequest -Uri $url -OutFile $outname
+       ./ConfigureRemotingForAnsible.ps1
+       New-ItemProperty -Path HKLM:Software\Microsoft\Windows\CurrentVersion\policies\system -Name EnableLUA -PropertyType DWord -Value 0 -Force
+       Set-ItemProperty -Path HKLM:\SOFTWARE\WOW6432Node\Policies\Microsoft\WindowsFirewall\DomainProfile -Name EnableFirewall -Value 0
+       Set-ItemProperty -Path HKLM:\SOFTWARE\WOW6432Node\Policies\Microsoft\WindowsFirewall\PrivateProfile -Name EnableFirewall -Value 0
+       Set-ItemProperty -Path HKLM:\SOFTWARE\WOW6432Node\Policies\Microsoft\WindowsFirewall\PublicProfile -Name EnableFirewall -Value 0
+       New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Policies" -Name "LongPathsEnabled" -PropertyType DWORD -Value 1
+       Set-ItemProperty -Path "HKLM:\SYSTEM\ControlSet001\Control\FileSystem" -Name "LongPathsEnabled" -Value 1
+       Set-ItemProperty -Path "HKLM:\SYSTEM\ControlSet002\Control\FileSystem" -Name "LongPathsEnabled" -Value 1
+       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1
+       echo $null >> complete.txt
+       </powershell>
+       <persist>true</persist>
+   register: ec2_output
+
+ - debug:
+     var: ec2_output.instances[0].private_ip_address
+ - set_fact:
+     new_ec2: "{{ec2_output.instances[0].private_ip_address}}"
+     new_instance_id: "{{ec2_output.instances[0].instance_id}}"
+
+ - name: Copy New Instance ID To File Just In Case
+   local_action:  copy content={{new_instance_id}} dest=./res_instance_id
+
+ - name: And Now Copy New IP Address To File Just In Case
+   local_action: copy content={{new_ec2}} dest=./res_instance_ip_address
+
+ - add_host:
+     hostname: "{{new_ec2}}" 
+     ansible_user: administrator
+     ansible_password: "{{ lookup('aws_ssm', '/privami/userpass') }}" 
+     ansible_connection: winrm
+     ansible_winrm_transport: ntlm
+     ansible_winrm_server_cert_validation: ignore
+
+ - debug:
+     var: new_ec2
+
+ - name: Wait for Box To Be Available
+   wait_for_connection:
+   delegate_to: "{{new_ec2}}"
+
+ - name: Reboot Machine To Apply Settings
+   win_reboot:
+   delegate_to: "{{new_ec2}}"
+
+ - name: Check if Script Complete
+   win_stat:
+     path: c:\temp\complete.txt
+   register: complete_txt
+   until: complete_txt.stat.exists == True
+   retries: 10
+   delay: 20 
+   delegate_to: "{{new_ec2}}"

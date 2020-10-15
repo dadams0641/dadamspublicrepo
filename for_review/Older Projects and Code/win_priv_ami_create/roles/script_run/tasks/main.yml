@@ -1,0 +1,64 @@
+ - set_fact:
+     new_ec2: "{{item}}"
+   with_lines: cat ./res_instance_ip_address
+
+ - add_host:
+     hostname: "{{new_ec2}}"
+     ansible_user: administrator
+     ansible_password: "{{ lookup('aws_ssm', '/privami/userpass') }}" 
+     ansible_connection: winrm
+     ansible_winrm_transport: ntlm
+     ansible_winrm_server_cert_validation: ignore
+
+ - name: Discover Interface IDs
+   win_command: "powershell $interfaceid = netsh interface ipv4 show interfaces | %{ $_.Split('')[0..2];} | select-string -Pattern \"[0-9]\" | Out-String; echo $interfaceid.Trim()"
+   register: interface_output
+   delegate_to: "{{new_ec2}}"
+
+ - set_fact:
+     interface_out: "{{interface_output.stdout_lines}}"
+
+ - debug:
+     var: interface_out
+
+ - name: Apply DNS Changes To Meet RES Standards
+   win_command: "powershell Set-DnsClientServerAddress -InterfaceIndex {{item}} -ServerAddresses (\"10.1.35.1\",\"10.1.1.120\")"
+   with_items:
+     - "{{interface_out}}"
+   delegate_to: "{{new_ec2}}"
+
+ - name: Template Agent Install to Host
+   win_template:
+     src: templates/agent_install.ps1.j2
+     dest: roles/script_run/files/agent_install.ps1
+
+ - name: Copy Files To Host
+   win_copy:
+     remote_src: no
+     src: "{{item}}"
+     dest: c:\temp\
+   loop:
+     - "files/chrome_install.ps1"
+     - "files/agent_install.ps1"
+   delegate_to: "{{new_ec2}}"
+
+ - name: Install AWS CLI Tools for Powershell
+   win_command: "powershell Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force; Install-Module -Name AWSPowerShell -Force; Install-Module -Name AWSPowerShell.NetCore -AllowClobber -Force"
+   args:
+     chdir: c:\
+   delegate_to: "{{new_ec2}}"
+
+ - name: Run Baseline Installer Script
+   win_command: "{{item}}"
+   args:
+     chdir: c:\temp\
+   loop:
+     - "powershell c:\\temp\\agent_install.ps1"
+     - "powershell c:\\temp\\chrome_install.ps1" 
+   delegate_to: "{{new_ec2}}"
+
+ - include: viscron.yml
+   when: app|upper == "VISCRON"
+
+ - include: iis.yml
+   when: app|upper == "IIS"

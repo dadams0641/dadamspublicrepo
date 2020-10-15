@@ -1,0 +1,251 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Codepipeline stack that takes S3 Anisble uploads and
+  deploys them to the appropriate accounts.
+
+Parameters:
+  ProjectName:
+    Type: String
+    Description: The name of the stack/stackset to be processed by this pipeline.
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Default: vpc-04e8a82cae2443538
+    Description: A VPC ID to provide when spinning up this pipeline
+  PubSubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Default: subnet-08e3477e707d70342
+    Description: A subnet ID to run the codebuild worker in (must be a public subnet)
+  PrivSubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Default: subnet-002e76ba8059f3025
+    Description: A subnet ID to run the Instance (must be a private subnet)
+
+Resources:
+  CodeBuildPromoteAmi:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: buildspec.ami.yml
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Type: LINUX_CONTAINER
+        Image: aws/codebuild/python:3.6.5
+        EnvironmentVariables:
+          - Name: REGION
+            Value: !Ref AWS::Region
+          - Name: ACCOUNT
+            Value: !Ref AWS::AccountId
+          - Name: QA
+            Value: '452492757303'
+          - Name: DEV
+            Value: '183406521668'
+          - Name: STAGING
+            Value: '438313809893'
+          - Name: POC
+            Value: '913474001465'
+          - Name: PROD
+            Value: '182702502117'
+      ServiceRole: !GetAtt PromoteAmiCodeBuildServiceRole.Arn
+
+  PromoteAmiToProd:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: buildspec.prod.yml
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Type: LINUX_CONTAINER
+        Image: aws/codebuild/python:3.6.5
+        EnvironmentVariables:
+          - Name: STAGE
+            Value: prod
+          - Name: REGION
+            Value: !Ref AWS::Region
+          - Name: ACCOUNT
+            Value: !Ref AWS::AccountId
+      ServiceRole: !GetAtt PromoteAmiCodeBuildServiceRole.Arn
+
+  PipelineNotificationsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: !Sub ${ProjectName}-notifications
+
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn: !Sub arn:aws:iam::${AWS::AccountId}:role/ci/PromoteAmiServiceRole
+      ArtifactStore:
+        Type: S3
+        Location: !Ref PipelineArtifactsBucket
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: Source
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Version: '1'
+                Provider: S3
+              Configuration:
+                S3Bucket: '{{resolve:ssm:/trek10/ci/UploadBucketName:1}}'
+                S3ObjectKey: !Sub "StackShack/${ProjectName}-bundle.zip"
+              OutputArtifacts:
+                - Name: ProjectSrc
+              RunOrder: 1 #TODO: add unit tests stage
+        - Name: PromoteAmi
+          Actions:
+            - Name: PromoteAmi
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: '1'
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Ref CodeBuildPromoteAmi
+              InputArtifacts:
+                - Name: ProjectSrc
+              OutputArtifacts:
+                - Name: TransformedTemplate
+              RunOrder: 1
+  PipelineArtifactsBucket:
+    Type: AWS::S3::Bucket
+    Properties: {}
+  PromoteAmiServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /ci/
+      RoleName: PromoteAmiServiceRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: 
+              - codepipeline.amazonaws.com
+              - codebuild.amazonaws.com
+              - lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cloudformation:CreateStackSet
+                  - cloudformation:CreateStackSetInstances
+                  - cloudformation:DeleteStackSet
+                  - cloudformation:DescribeStackSet
+                  - cloudformation:DescribeStackSetOperation 
+                  - cloudformation:ListStackInstances 
+                  - cloudformation:ListStackSetOperationResults 
+                  - cloudformation:ListStackSetOperations 
+                  - cloudformation:ListStackSets 
+                  - cloudformation:StopStackSetOperation 
+                  - cloudformation:UpdateStackSet 
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                    - iam:ListRoles
+                    - iam:PassRole
+                    - s3:ListAllMyBuckets
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - s3:Get*
+                  - s3:ListBucket
+                  - s3:ListObject*
+                  - s3:PutObject
+                Resource: 
+                  - !GetAtt PipelineArtifactsBucket.Arn
+                  - !Sub ${PipelineArtifactsBucket.Arn}/*
+                  - '{{resolve:ssm:/trek10/ci/UploadBucketArn:1}}/*'
+                  - '{{resolve:ssm:/trek10/ci/UploadBucketArn:1}}'
+              - Effect: Allow
+                Action:
+                  - codebuild:StartBuild
+                  - codebuild:BatchGetBuilds
+                  - kms:Encrypt
+                  - kms:Decrypt
+                  - kms:ReEncrypt*
+                  - kms:GenerateDataKey*
+                  - kms:DescribeKey
+                  - sns:Publish
+                  - lambda:Invoke*
+                  - Lambda:List*
+                  - codepipeline:*
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - ecr:GetAuthorizationToken
+                Resource: "*"
+  PromoteAmiCodeBuildServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /ci/
+      RoleName: PromoteAmiCodeBuildServiceRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: 
+              - codebuild.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - ecr:GetAuthorizationToken
+                Resource: "*"
+              - Effect: Allow
+                Action: 'ec2:*'
+                Resource: '*'
+              - Sid: ConditionalEC2creationName
+                Effect: Allow
+                Action: "ec2:RunInstances"
+                Resource: "*"
+                Condition:
+                  StringNotLike: {"aws:RequestTag/TechnicalOwner": "*"}
+              - Effect: Allow
+                Action:
+                  - s3:Get*
+                  - s3:ListBucket
+                  - s3:ListBucketVersions
+                  - s3:ListObjects
+                  - s3:PutObject
+                Resource:
+                  - '{{resolve:ssm:/trek10/ci/UploadBucketArn:1}}'
+                  - '{{resolve:ssm:/trek10/ci/UploadBucketArn:1}}/*'
+                  - !GetAtt PipelineArtifactsBucket.Arn
+                  - !Sub ${PipelineArtifactsBucket.Arn}/*
+              - Effect: Allow
+                Action: 'ssm:Get*'
+                Resource: '*'
+              - Effect: Allow
+                Action: 'ssm:PutParameter'
+                Resource: '*'
+              - Effect: Allow
+                Action: 'sts:AssumeRole'
+                Resource: 'arn:aws:iam::*:role/AzureDevOps/AmiPipelineSsmManager'
+
+Outputs:
+  PipelineUrl:
+    Value: !Sub https://console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${Pipeline}
+

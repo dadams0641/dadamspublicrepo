@@ -1,0 +1,120 @@
+Description: tesiasupport.com Route53 Zone and DNS records
+Parameters:
+  DefaultTTL:
+    Type: Number
+    Description: Default lifetime for DNS records
+    Default: 3600
+Resources:
+  tesiasupport:
+    Type: AWS::Route53::HostedZone
+    Properties:
+      HostedZoneConfig:
+        Comment: !Sub tesiasupport - see CFN stack '${AWS::StackName}'
+      Name: tesiasupport.com.
+  Root:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: tesiasupport
+      HostedZoneId: !Ref tesiasupport
+      Name: tesiasupport.com.
+      ResourceRecords:
+      - 74.208.29.223
+      TTL: !Ref DefaultTTL
+      Type: A
+  MailRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: MailRecord
+      HostedZoneId: !Ref tesiasupport
+      Name: tesiasupport.com.
+      ResourceRecords:
+      - 5 alt1.aspmx.l.google.com.
+      - 5 alt2.aspmx.l.google.com.
+      - 10 alt3.aspmx.l.google.com.
+      - 10 alt4.aspmx.l.google.com.
+      - 1 aspmx.l.google.com.
+      TTL: !Ref DefaultTTL
+      Type: MX
+  TXT:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: txt
+      HostedZoneId: !Ref tesiasupport
+      Name: tesiasupport.com.
+      ResourceRecords:
+      - '"google-site-verification=DcbFb5JKRiasS9VT-ba2C5CcHdxc1EwD2DOG646L8lw"'
+      TTL: !Ref DefaultTTL
+      Type: TXT
+  SPF:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: SPF
+      HostedZoneId: !Ref tesiasupport
+      Name: tesiasupport.com.
+      ResourceRecords:
+      - '"v=spf1 include:_spf.google.com include:_spf.sendergen.com ~all"'
+      TTL: !Ref DefaultTTL
+      Type: SPF
+  DMARC:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: DMARC
+      HostedZoneId: !Ref tesiasupport
+      Name: _dmarc.tesiasupport.com.
+      ResourceRecords:
+      - '"v=DMARC1; p=none; rua=mailto:vpaaxg37@ag.dmarcian.com, mailto:ACole@dentalhero.com"'
+      TTL: !Ref DefaultTTL
+      Type: TXT
+  DKIM:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: DMARC
+      HostedZoneId: !Ref tesiasupport
+      Name: google._domainkey.tesiasupport.com.
+      ResourceRecords:
+      - '"v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCdqqEvmGhrj2PACIE71gT/s7VsLq6EVIPdyEKknuT3ydNJs2l1Pi+0Kl8imwvLTz41/gS0IPh2M2uI0/wlJ5ZeqS1MF2ibUQo+vHecrYkMxDw9lzkAwyQfQW2LawH1cXQDDOC321r9YVMTeI7z5yjzwIQ38WYIMNSFR4WWWLQrNwIDAQAB"'
+      TTL: !Ref DefaultTTL
+      Type: TXT
+  Smart:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Smart
+      HostedZoneId: !Ref tesiasupport
+      Name: smart.tesiasupport.com.
+      ResourceRecords:
+      - whs.sendergen.com.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  SMTP:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: SMTP
+      HostedZoneId: !Ref tesiasupport
+      Name: smtp.tesiasupport.com.
+      ResourceRecords:
+      - 67.98.30.115
+      TTL: !Ref DefaultTTL
+      Type: A
+  WWW:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: WWW
+      HostedZoneId: !Ref tesiasupport
+      Name: www.tesiasupport.com.
+      ResourceRecords:
+      - 74.208.29.223
+      TTL: !Ref DefaultTTL
+      Type: A
+#@                       A	74.208.29.223
+#@                       MX	5	alt1.aspmx.l.google.com.
+#@                       MX	5	alt2.aspmx.l.google.com.
+#@                       MX	10	alt3.aspmx.l.google.com.
+#@                       MX	10	alt4.aspmx.l.google.com.
+#@                       MX	1	aspmx.l.google.com.
+#@                       TXT	( "google-site-verification=DcbFb5JKRiasS9VT-ba2C5CcHdxc1EwD2DOG646L8lw" )
+#@                       TXT	( "v=spf1 include:_spf.google.com include:_spf.sendergen.com ~all" )
+#_dmarc                  TXT	( "v=DMARC1; p=none; rua=mailto:vpaaxg37@ag.dmarcian.com, mailto:ACole@dentalhero.com" )
+#google._domainkey       TXT	( "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCdqqEvmGhrj2PACIE71gT/s7VsLq6EVIPdyEKknuT3ydNJs2l1Pi+0Kl8imwvLTz41/gS0IPh2M2uI0/wlJ5ZeqS1MF2ibUQo+vHecrYkMxDw9lzkAwyQfQW2LawH1cXQDDOC321r9YVMTeI7z5yjzwIQ38WYIMNSFR4WWWLQrNwIDAQAB" )
+#smart                   CNAME	whs.sendergen.com.
+#smtp                    A	67.98.30.115
+#www                     A	74.208.29.223

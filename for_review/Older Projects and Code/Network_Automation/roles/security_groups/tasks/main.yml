@@ -1,0 +1,42 @@
+ - name: "Create Security Group within {{ env | upper }}"
+   ec2_group:
+     aws_access_key: "{{ aws_access_key }}"
+     aws_secret_key: "{{ aws_secret_key }}"
+     name: "{{resname}}_{{env|upper}}SG"
+     state: present
+     description: "Security Groups Built as Part of Ansible Automation"
+     rules:
+      - proto: all
+        from_port: 0
+        to_port: 65535
+        cidr_ip:
+          - "{{all_traffic}}"
+      - proto: tcp
+        from_port: 22
+        to_port: 22
+        cidr_ip:
+          - "{{ssh}}"
+      - proto: tcp
+        from_port: 443
+        to_port: 443
+        cidr_ip:
+          - "{{https}}"
+      - proto: icmp
+        from_port: 0
+        to_port: -1
+        cidr_ip:
+          - "{{all_icmp_v4}}"
+     vpc_id: "{{vpcid}}"
+     tags:
+       built: "With Ansible"
+       Name: "{{resname}}_{{env|upper}}SG"
+     region: "{{region}}"
+   register: sgout
+
+ - set_fact:
+     sgid: "{{sgout.group_id}}"
+
+ - local_action: copy content={{sgout.group_id}} dest=./{{env}}SGid.dav
+
+ - name: Add additional rules to SG
+   shell: "export AWS_ACCESS_KEY_ID={{aws_access_key}}; export AWS_SECRET_ACCESS_KEY={{aws_secret_key}}; export AWS_DEFAULT_REGION={{region}}; aws ec2 authorize-security-group-ingress --group-id {{sgid}} --protocol all --port 0-65535 --source-group {{sgid}}"

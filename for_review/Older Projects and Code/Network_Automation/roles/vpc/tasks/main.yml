@@ -1,0 +1,21 @@
+ - name: "Create VPC within {{ env | upper }}"
+   ec2_vpc_net:
+     name: "{{resname}}_{{env|upper}}_VPC"
+     aws_access_key: "{{ aws_access_key }}"
+     aws_secret_key: "{{ aws_secret_key }}"
+     state: present
+     cidr_block: "{{vpc_cidr}}"
+     dns_support: yes
+     dns_hostnames: yes
+     tags:
+       name: Built with Ansible
+     region: "{{region}}" 
+     tenancy: default
+   register: vpc_output
+  
+ - set_fact:
+     vpcid: "{{vpc_output.vpc.id}}"
+
+ - local_action: copy content={{vpc_output.vpc.id}} dest=./{{env}}vpcid.dav
+
+

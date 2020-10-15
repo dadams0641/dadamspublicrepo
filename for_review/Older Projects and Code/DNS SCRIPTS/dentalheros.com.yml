@@ -1,0 +1,13 @@
+Description: dentalheroes.com Route53 Zone and DNS records
+Parameters:
+  DefaultTTL:
+    Type: Number
+    Description: Default lifetime for DNS records
+    Default: 3600
+Resources:
+  dentalheroes:
+    Type: AWS::Route53::HostedZone
+    Properties:
+      HostedZoneConfig:
+        Comment: !Sub dentalheroes URL Spoofing- see CFN stack '${AWS::StackName}'
+      Name: dentalheroes.com.

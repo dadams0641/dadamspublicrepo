@@ -1,0 +1,276 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  CodePipeline Stack that runs Scout2 for a given environment.
+
+Parameters:
+  ProjectName:
+    Type: String
+    Description: The name of the stack/stackset to be processed by this pipeline.
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Default: vpc-04e8a82cae2443538
+    Description: A VPC ID to provide when spinning up this pipeline
+  PubSubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Default: subnet-08e3477e707d70342
+    Description: A subnet ID to run the codebuild worker in (must be a public subnet)
+  PrivSubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Default: subnet-002e76ba8059f3025
+    Description: A subnet ID to run the Instance (must be a private subnet)
+
+Resources:
+  ScoutRun:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: buildspec.ami.yml
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Type: LINUX_CONTAINER
+        Image: aws/codebuild/python:3.6.5
+        EnvironmentVariables:
+          - Name: REGION
+            Value: !Ref AWS::Region
+          - Name: ACCOUNT
+            Value: !Ref AWS::AccountId
+      ServiceRole: !GetAtt Scout2Run.Arn
+
+  ScoutRunAmi:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: buildspec.prod.yml
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Type: LINUX_CONTAINER
+        Image: aws/codebuild/python:3.6.5
+        EnvironmentVariables:
+          - Name: STAGE
+            Value: prod
+          - Name: REGION
+            Value: !Ref AWS::Region
+          - Name: ACCOUNT
+            Value: !Ref AWS::AccountId
+      ServiceRole: !GetAtt Scout2Run.Arn
+
+  PipelineNotificationsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: !Sub ${ProjectName}-notifications
+
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn: !Sub arn:aws:iam::${AWS::AccountId}:role/ci/ScoutRunAmiServiceRole
+      ArtifactStore:
+        Type: S3
+        Location: !Ref PipelineArtifactsBucket
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: Source
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Version: '1'
+                Provider: S3
+              Configuration:
+                S3Bucket: '{{resolve:ssm:/trek10/ci/UploadBucketName:1}}'
+                S3ObjectKey: !Sub "StackShack/${ProjectName}-bundle.zip"
+              OutputArtifacts:
+                - Name: ProjectSrc
+              RunOrder: 1 #TODO: add unit tests stage
+        - Name: Run_ScoutSuite
+          Actions:
+            - Name: Run_ScoutSuite
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: '1'
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Ref ScoutRun
+              InputArtifacts:
+                - Name: ProjectSrc
+              OutputArtifacts:
+                - Name: TransformedTemplate
+              RunOrder: 1
+  PipelineArtifactsBucket:
+    Type: AWS::S3::Bucket
+    Properties: {}
+  ScoutRunAmiServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /ci/
+      RoleName: ScoutRunAmiServiceRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: 
+              - codepipeline.amazonaws.com
+              - codebuild.amazonaws.com
+              - lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cloudformation:CreateStackSet
+                  - cloudformation:CreateStackSetInstances
+                  - cloudformation:DeleteStackSet
+                  - cloudformation:DescribeStackSet
+                  - cloudformation:DescribeStackSetOperation 
+                  - cloudformation:ListStackInstances 
+                  - cloudformation:ListStackSetOperationResults 
+                  - cloudformation:ListStackSetOperations 
+                  - cloudformation:ListStackSets 
+                  - cloudformation:StopStackSetOperation 
+                  - cloudformation:UpdateStackSet 
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                    - iam:ListRoles
+                    - iam:PassRole
+                    - s3:ListAllMyBuckets
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - s3:Get*
+                  - s3:ListBucket
+                  - s3:ListObject*
+                  - s3:PutObject
+                Resource: 
+                  - !GetAtt PipelineArtifactsBucket.Arn
+                  - !Sub ${PipelineArtifactsBucket.Arn}/*
+                  - '{{resolve:ssm:/trek10/ci/UploadBucketArn:1}}/*'
+                  - '{{resolve:ssm:/trek10/ci/UploadBucketArn:1}}'
+              - Effect: Allow
+                Action:
+                  - codebuild:StartBuild
+                  - codebuild:BatchGetBuilds
+                  - kms:Encrypt
+                  - kms:Decrypt
+                  - kms:ReEncrypt*
+                  - kms:GenerateDataKey*
+                  - kms:DescribeKey
+                  - sns:Publish
+                  - lambda:Invoke*
+                  - Lambda:List*
+                  - codepipeline:*
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - ecr:GetAuthorizationToken
+                Resource: "*"
+  Scout2Run:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /ci/
+      RoleName: Scout2Run
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: 
+              - codebuild.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - ecr:GetAuthorizationToken
+                Resource: "*"
+              - Effect: Allow
+                Action: 'ec2:*'
+                Resource: '*'
+              - Sid: ConditionalEC2creationName
+                Effect: Allow
+                Action: "ec2:RunInstances"
+                Resource: "*"
+                Condition:
+                  StringNotLike: {"aws:RequestTag/TechnicalOwner": "*"}
+              - Effect: Allow
+                Action:
+                  - s3:Get*
+                  - s3:ListBucket
+                  - s3:ListBucketVersions
+                  - s3:ListObjects
+                  - s3:PutObject
+                  - s3:HeadBucket
+                  - s3:HeadObject
+                Resource:
+                  - '{{resolve:ssm:/trek10/ci/UploadBucketArn:1}}'
+                  - '{{resolve:ssm:/trek10/ci/UploadBucketArn:1}}/*'
+                  - !GetAtt PipelineArtifactsBucket.Arn
+                  - !Sub ${PipelineArtifactsBucket.Arn}/*
+                  - !Sub ${ScoutBucket.Arn}/*
+                  - !GetAtt ScoutBucket.Arn
+              - Effect: Allow
+                Action: 'ssm:Get*'
+                Resource: '*'
+              - Effect: Allow
+                Action: 'ssm:PutParameter'
+                Resource: '*'
+              - Effect: Allow
+                Action: 'sts:AssumeRole'
+                Resource: 'arn:aws:iam::*:role/ScoutSuiteAuditor'
+  ScoutBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'scoutrunner-${AWS::AccountId}-${AWS::Region}'
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: 404.html
+      Tags:
+        -
+          Key: TechnicalOwner
+          Value: David Adams
+  ScoutBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref 'ScoutBucket'
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: '*'
+            Action: s3:GetObject
+            Resource: !Sub '${ScoutBucket.Arn}/*'
+            Condition:
+              IpAddress:
+                aws:SourceIp:
+                  - 184.175.188.226
+                  - 96.94.232.81
+                  - 52.2.140.103
+                  - 35.155.152.37
+                  - 54.77.189.190
+                  - 18.191.101.92
+
+
+Outputs:
+  PipelineUrl:
+    Value: !Sub https://console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${Pipeline}
+

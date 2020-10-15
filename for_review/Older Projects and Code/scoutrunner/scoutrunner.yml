@@ -1,0 +1,37 @@
+- hosts: localhost
+  gather_facts: False
+  vars_files: ./scoutrunner_vars.yml
+  tasks:
+    - name: Build Credentials for role assumption
+      sts_assume_role:
+        role_arn: "arn:aws:iam::{{scout_id}}:role/ScoutSuiteAuditor"
+        role_session_name: "Corp2Security"
+      register: assumed_role
+
+    - name: Create AWS Config Directory
+      file:
+        path: /root/.aws/
+        state: directory
+        
+    - name: Create Config File
+      shell: "echo {{item}} >> /root/.aws/config"
+      with_items:
+        - ["[default]", "output = text", "region = us-east-2"]
+
+    - name: Create Credentials File
+      shell: "echo {{item}} >> /root/.aws/credentials"
+      with_items:
+        - ["[default]"]
+
+    - name: Add Creds to Credentials File
+      shell: "echo  {{item.0}} = {{item.1}} >> /root/.aws/credentials"
+      with_together:
+        - ["aws_access_key_id", "aws_secret_access_key", "aws_session_token"]
+        - ["{{ assumed_role.sts_creds.access_key }}", "{{ assumed_role.sts_creds.secret_key }}", "{{ assumed_role.sts_creds.session_token }}"]
+
+    - name: Run Scout Suite
+      shell: "Scout aws --report-dir /tmp/{{env|upper}}-scoutsuite-report/; rm /root/.aws/*"
+
+    - name: Transfer Files to S3 Bucket
+      shell: "aws s3 sync /tmp/{{env|upper}}-scoutsuite-report/ s3://scoutrunner-496307432785-us-east-2/{{env|upper}}-scoutsuite-report/"
+        

@@ -1,0 +1,7 @@
+- hosts: localhost
+  gather_facts: False
+  roles:
+    - win_cis_discover 
+    - launch_ec2
+    - script_run
+    - priv_create 

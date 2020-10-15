@@ -1,0 +1,69 @@
+Description: taylor-hs.com Route53 Zone and DNS records
+Parameters:
+  DefaultTTL:
+    Type: Number
+    Description: Default lifetime for DNS records
+    Default: 3600
+Resources:
+  taylorhs:
+    Type: AWS::Route53::HostedZone
+    Properties:
+      HostedZoneConfig:
+        Comment: !Sub taylorhs - see CFN stack '${AWS::StackName}'
+      Name: taylor-hs.com.
+  SPF:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: SPF
+      HostedZoneId: !Ref taylorhs
+      Name: taylor-hs.com.
+      ResourceRecords:
+      - '"v=spf1 include:_spf.google.com include:_spf.sendergen.com ~all"'
+      TTL: !Ref DefaultTTL
+      Type: SPF
+  MS:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: SPF
+      HostedZoneId: !Ref taylorhs
+      Name: taylor-hs.com.
+      ResourceRecords:
+      - '"MS=mse49ed3f3"'
+      TTL: !Ref DefaultTTL
+      Type: TXT
+  Mailrecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Mailrecord
+      HostedZoneId: !Ref taylorhs
+      Name: taylor-hs.com.
+      ResourceRecords:
+      - 10 smtp.res-llc.com.
+      TTL: !Ref DefaultTTL
+      Type: MX
+  Autodiscover:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Autodiscover
+      HostedZoneId: !Ref taylorhs
+      Name: autodiscover.taylor-hs.com.
+      ResourceRecords:
+      - mail.r-mail.com.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  SMTP:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: SMTP
+      HostedZoneId: !Ref taylorhs
+      Name: SMTP.taylor-hs.com.
+      ResourceRecords:
+      - 67.98.30.115
+      TTL: !Ref DefaultTTL
+      Type: A
+#@                       MX	10	smtp.res-llc.com.
+#@                       TXT	( "v=spf1 mx ip4:67.98.30.113 ip4:184.175.188.240 ~all" )
+#@                       TXT	( "MS=mse49ed3f3" )
+#autodiscover            CNAME	mail.r-mail.com.
+#dzc                     TXT	( "8AX38cqb" )
+#smtp                    A	67.98.30.115

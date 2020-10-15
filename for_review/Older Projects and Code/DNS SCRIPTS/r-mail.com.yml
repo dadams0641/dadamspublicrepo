@@ -1,0 +1,56 @@
+Description: r-mail.com Route53 Zone and DNS records
+Parameters:
+  DefaultTTL:
+    Type: Number
+    Description: Default lifetime for DNS records
+    Default: 3600
+Resources:
+  rmail:
+    Type: AWS::Route53::HostedZone
+    Properties:
+      HostedZoneConfig:
+        Comment: !Sub   r-mail   -    see CFN stack '${AWS::StackName}'
+      Name: r-mail.com.
+  Root:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: r-mail
+      HostedZoneId: !Ref rmail
+      Name: r-mail.com.
+      ResourceRecords:
+      - 184.175.188.24
+      TTL: !Ref DefaultTTL
+      Type: A
+  legacy:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: r-mail
+      HostedZoneId: !Ref rmail
+      Name: legacy.r-mail.com.
+      ResourceRecords:
+      - 67.98.30.116
+      TTL: !Ref DefaultTTL
+      Type: A
+  mail:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: r-mail
+      HostedZoneId: !Ref rmail
+      Name: mail.r-mail.com.
+      ResourceRecords:
+      - 184.175.188.24
+      TTL: !Ref DefaultTTL
+      Type: A
+  SPF:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: r-mail
+      HostedZoneId: !Ref rmail
+      Name: r-mail.com.
+      ResourceRecords:
+      - '"v=spf1 a ~all"'
+      TTL: !Ref DefaultTTL
+      Type: SPF
+#@                       TXT	( "v=spf1 a ~all" )
+#legacy                  A	67.98.30.116
+#mail   184.175.188.243

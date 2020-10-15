@@ -1,0 +1,35 @@
+- hosts: localhost
+  gather_facts: False
+  tasks:
+    - name: "Find CentOS CIS AMI"
+      ec2_ami_facts:
+        owners: 679593333241
+        filters:
+          description: "*CIS*Centos*7*"
+      register: output_cis
+
+    - set_fact:
+       curr_ocis_amiid: "{{ (output_cis.images | sort(attribute='creation_date') | list)[-1].image_id}}"
+
+    - debug:
+        var: curr_ocis_amiid
+
+    - name: Set Current RES AMI ID as Variable
+      set_fact:
+        res_id: "{{ lookup('aws_ssm', '/ci/current_CentOS_cis_id') }}"
+
+    - debug:
+        var:  res_id  
+
+    - block:
+        - name: Determine if Build is Necessary
+          debug:
+            msg: "No need to trigger build"
+
+        - meta: end_host
+      when: res_id == curr_ocis_amiid
+      
+      
+    - debug:
+        msg: "Starting new build"
+      when: res_id != curr_ocis_amiid

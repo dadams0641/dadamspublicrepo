@@ -1,0 +1,46 @@
+#!/bin/python2 
+
+import os
+import sys
+import re
+import subprocess
+import time
+
+nottagged=[]
+instances=[]
+t_instances=[]
+x=0
+instance_id=subprocess.Popen('aws ec2 describe-instances --output text --filters "Name=instance-state-name,Values=running" --query "Reservations[*].Instances[*].InstanceId"', shell=True, stdout=subprocess.PIPE)
+for iid in instance_id.stdout:
+    iid=iid.strip()
+    instances.append(iid)
+for i in instances:
+    tags=subprocess.Popen('aws ec2 describe-instances --output text --instance-ids ' + i + ' --query "Reservations[*].Instances[*].Tags" | awk {\'print $1\'}; echo -e ""', shell=True, stdout=subprocess.PIPE)
+    for tag in iter(tags.stdout.readline, ''):
+        if tag is None:
+            t_instances.append("")
+        t_instances.append(tag)
+
+def tagAllInstances():
+    print "No EC2 instance tags found. Tagging all instances." 
+    
+def ec2Tags():
+    time.sleep(.5)
+    print "Checking and Tagging EC2 Instances"
+    for i, t in zip(instances, t_instances):
+        t=t.strip()
+        i=i.strip()
+        if t == "":
+          print "Nothing Tagged in " + i
+          nottagged.append(i)
+          time.sleep(.5)
+        if t:
+            print "Instance " + i + " tagged with " + t
+            time.sleep(.5)
+    noTags()
+
+def noTags():
+    for nt in nottagged:
+       print "Tagging " + nt + " with creator"
+
+ec2Tags()

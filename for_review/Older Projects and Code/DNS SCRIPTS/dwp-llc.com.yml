@@ -1,0 +1,52 @@
+Description: ejpaul.com Route53 Zone and DNS records
+Parameters:
+  DefaultTTL:
+    Type: Number
+    Description: Default lifetime for DNS records
+    Default: 3600
+Resources:
+  EJPaul.COM:
+    Type: AWS::Route53::HostedZone
+    Properties:
+      HostedZoneConfig:
+        Comment: !Sub   ejpaul   -    see CFN stack '${AWS::StackName}'
+      Name: ejpaul.com.
+  SMTP:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: ejpaul
+      HostedZoneId: !Ref EJPaul
+      Name: smtp.ejpaul.com.
+      ResourceRecords:
+      - 67.98.30.115
+      TTL: !Ref DefaultTTL
+      Type: A   
+  MailRecord1:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: MailRecord1
+      HostedZoneId: !Ref EJPaul
+      Name: ejpaul.com.
+      ResourceRecords:
+      - 10 smtp.res-llc.com
+      TTL: !Ref DefaultTTL
+      Type: MX
+  DZC:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: DZC
+      HostedZoneId: !Ref EJPaul
+      Name: smtp.ejpaul.com.
+      ResourceRecords:
+      - '"8AX38cqb"'
+      TTL: !Ref DefaultTTL
+      Type: TXT
+      
+#;  Zone records
+#;
+#
+#@                       MX	10	smtp.res-llc.com.
+#@                       TXT	( "v=spf1 a ~all" )
+#DZC.autodiscover        TXT	( "8AX38cqb" )
+#DZC                     TXT	( "8AX38cqb" )
+#smtp                    A	67.98.30.115

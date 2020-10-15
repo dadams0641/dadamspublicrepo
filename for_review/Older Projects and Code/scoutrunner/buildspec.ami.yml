@@ -1,0 +1,10 @@
+version: 0.2
+
+phases:
+  build:
+    commands:
+      - pip install ansible
+      - pip install pywinrm
+      - pip install scoutsuite
+      - whoami
+      - ansible-playbook scoutrunner.yml -vvv 

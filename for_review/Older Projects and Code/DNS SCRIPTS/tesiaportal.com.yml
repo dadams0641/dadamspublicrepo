@@ -1,0 +1,46 @@
+Description: tesiaportal.com Route53 Zone and DNS records
+Parameters:
+  DefaultTTL:
+    Type: Number
+    Description: Default lifetime for DNS records
+    Default: 3600
+Resources:
+  tesiaportal:
+    Type: AWS::Route53::HostedZone
+    Properties:
+      HostedZoneConfig:
+        Comment: !Sub tesiaportal - see CFN stack '${AWS::StackName}'
+      Name: tesiaportal.com.
+  Root:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: tesiaportal
+      HostedZoneId: !Ref tesiaportal
+      Name: tesiaportal.com.
+      ResourceRecords:
+      - 184.175.158.7
+      TTL: !Ref DefaultTTL
+      Type: A
+  WWW:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: WWW
+      HostedZoneId: !Ref tesiaportal
+      Name: www.tesiaportal.com.
+      ResourceRecords:
+      - tesiaportal.com.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  SPF:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: SPF
+      HostedZoneId: !Ref tesiaportal
+      Name: tesiaportal.com.
+      ResourceRecords:
+      - '"v=spf1 mx ip4:67.98.30.113 ip4:184.175.188.240 ~all"'
+      TTL: !Ref DefaultTTL
+      Type: SPF
+#@                       A	184.175.158.7
+#@                       TXT	( "v=spf1 mx ip4:67.98.30.113 ip4:184.175.188.240 ~all" )
+#www                     CNAME	tesiaportal.com.

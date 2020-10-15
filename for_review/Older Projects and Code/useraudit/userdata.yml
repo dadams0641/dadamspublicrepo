@@ -1,0 +1,38 @@
+- hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Gather User Data
+      shell: pwd
+      register: output2
+
+    - debug:
+        var: output2.stdout_lines
+
+    - set_fact:
+        pwd: "{{output2.stdout}}"
+        
+    - shell: "{{pwd}}/userscripts"
+      register: scriptoutput
+
+    - debug:
+        var: scriptoutput.stdout_lines
+
+    - shell: cat ./data.yml
+      register: useroutput
+
+    - debug:
+        var: useroutput.stdout_lines
+
+    - name: Gather Account Alias
+      aws_caller_facts:
+      register: acct_output
+
+    - set_fact:
+        acct_alias: "{{acct_output.account_alias|upper}}"
+
+
+    - name: Send default notification message via SNS
+      sns:
+        msg: '{{ useroutput.stdout }}'
+        subject: "{{acct_alias}} User Audit Complete"
+        topic:  User_Audit_Complete

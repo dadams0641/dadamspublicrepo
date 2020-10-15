@@ -1,0 +1,7 @@
+version: 0.2
+phases:
+  build:
+    commands:
+      - pip install ansible
+      - pip install pywinrm
+      - ansible-playbook priv_ami_create.yml --extra-vars "app=iis bucket=res-installers-496307432785-us-east-2 ir_arn=arn:aws:iam::496307432785:instance-profile/S3DownloadAgent" -vvv

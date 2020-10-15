@@ -1,0 +1,356 @@
+Description: lockboxservices.com Route53 Zone and DNS records
+Parameters:
+  DefaultTTL:
+    Type: Number
+    Description: Default lifetime for DNS records
+    Default: 3600
+Resources:
+  lockboxservices:
+    Type: AWS::Route53::HostedZone
+    Properties:
+      HostedZoneConfig:
+        Comment: !Sub   lockboxservices   -    see CFN stack '${AWS::StackName}'
+      Name: lockboxservices.com.
+  Root:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: lockboxservices
+      HostedZoneId: !Ref lockboxservices
+      Name: lockboxservices.com.
+      ResourceRecords:
+      - 184.175.158.5
+      TTL: !Ref DefaultTTL
+      Type: A   
+  DevEnrollment:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: MailRecord1
+      HostedZoneId: !Ref lockboxservices
+      Name: dev-enrollment.lockboxservices.com.
+      ResourceRecords:
+      - 70.34.148.10
+      TTL: !Ref DefaultTTL
+      Type: A
+  DevIISPat:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: MailRecord1
+      HostedZoneId: !Ref lockboxservices
+      Name: dev-iispat.lockboxservices.com.
+      ResourceRecords:
+      - 70.34.148.10
+      TTL: !Ref DefaultTTL
+      Type: A
+  DevIISProv:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: MailRecord1
+      HostedZoneId: !Ref lockboxservices
+      Name: dev-iisprov.lockboxservices.com.
+      ResourceRecords:
+      - 70.34.148.10
+      TTL: !Ref DefaultTTL
+      Type: A
+  DevPortal:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: MailRecord1
+      HostedZoneId: !Ref lockboxservices
+      Name: dev-portal.lockboxservices.com.
+      ResourceRecords:
+      - 70.34.148.10
+      TTL: !Ref DefaultTTL
+      Type: A
+  DevWSmisc:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: MailRecord1
+      HostedZoneId: !Ref lockboxservices
+      Name: dev-wsmisc.lockboxservices.com.
+      ResourceRecords:
+      - 70.34.148.11
+      TTL: !Ref DefaultTTL
+      Type: A
+  DevWStrans:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: MailRecord1
+      HostedZoneId: !Ref lockboxservices
+      Name: dev-wstrans.lockboxservices.com.
+      ResourceRecords:
+      - 70.34.148.12
+      TTL: !Ref DefaultTTL
+      Type: A
+  DevWWW:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: MailRecord1
+      HostedZoneId: !Ref lockboxservices
+      Name: dev-www.lockboxservices.com.
+      ResourceRecords:
+      - 70.34.148.10
+      TTL: !Ref DefaultTTL
+      Type: A
+  Enrollment:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: MailRecord1
+      HostedZoneId: !Ref lockboxservices
+      Name: enrollment.lockboxservices.com.
+      ResourceRecords:
+      - 184.175.158.5
+      TTL: !Ref DefaultTTL
+      Type: A
+  HIPAA:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: MailRecord1
+      HostedZoneId: !Ref lockboxservices
+      Name: hipaa.lockboxservices.com.
+      ResourceRecords:
+      - 184.175.158.5
+      TTL: !Ref DefaultTTL
+      Type: A
+  PMT:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: MailRecord1
+      HostedZoneId: !Ref lockboxservices
+      Name: pmt.lockboxservices.com.
+      ResourceRecords:
+      - 184.175.188.233
+      TTL: !Ref DefaultTTL
+      Type: A
+  Portal:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: MailRecord1
+      HostedZoneId: !Ref lockboxservices
+      Name: portal.lockboxservices.com.
+      ResourceRecords:
+      - 184.175.158.5
+      TTL: !Ref DefaultTTL
+      Type: A
+  WSmisc:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: MailRecord1
+      HostedZoneId: !Ref lockboxservices
+      Name: wsmisc.lockboxservices.com.
+      ResourceRecords:
+      - 184.175.158.5
+      TTL: !Ref DefaultTTL
+      Type: A
+  WStrans:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: MailRecord1
+      HostedZoneId: !Ref lockboxservices
+      Name: wstrans.lockboxservices.com.
+      ResourceRecords:
+      - 184.175.158.5
+      TTL: !Ref DefaultTTL
+      Type: A
+  WWW:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: MailRecord1
+      HostedZoneId: !Ref lockboxservices
+      Name: www.lockboxservices.com.
+      ResourceRecords:
+      - 184.175.158.5
+      TTL: !Ref DefaultTTL
+      Type: A
+  Test:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: MailRecord1
+      HostedZoneId: !Ref lockboxservices
+      Name: test.lockboxservices.com.
+      ResourceRecords:
+      - 184.175.158.5
+      TTL: !Ref DefaultTTL
+      Type: A
+  SMTP:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: MailRecord1
+      HostedZoneId: !Ref lockboxservices
+      Name: smtp.lockboxservices.com.
+      ResourceRecords:
+      - 67.98.30.115
+      TTL: !Ref DefaultTTL
+      Type: A
+  MailRecord1:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: MailRecord1
+      HostedZoneId: !Ref lockboxservices
+      Name: lockboxservices.com.
+      ResourceRecords:
+      - 5 alt2.aspmx.l.google.com.
+      - 1 aspmx.l.google.com.
+      - 10 alt4.aspmx.l.google.com
+      - 5 alt1.aspmx.l.google.com
+      - 10 alt3.aspmx.l.google.com
+      TTL: !Ref DefaultTTL
+      Type: MX
+  Autodiscover:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: autodiscover
+      HostedZoneId: !Ref lockboxservices
+      Name: autodiscover.lockboxservices.com.
+      ResourceRecords:
+      - mail.r-mail.com.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  Beta:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Beta
+      HostedZoneId: !Ref lockboxservices
+      Name: beta.lockboxservices.com.
+      ResourceRecords:
+      - portal.lockboxservices.com
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  LyncDiscover:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: LyncDiscover
+      HostedZoneId: !Ref lockboxservices
+      Name: lyncdiscover.lockboxservices.com.
+      ResourceRecords:
+      - webdir.online.lync.com.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  Sip:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Sip
+      HostedZoneId: !Ref lockboxservices
+      Name: sip.lockboxservices.com.
+      ResourceRecords:
+      - sipdir.online.lync.com.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  Smart:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: Sip
+      HostedZoneId: !Ref lockboxservices
+      Name: smart.lockboxservices.com.
+      ResourceRecords:
+      - whs.sendergen.com.
+      TTL: !Ref DefaultTTL
+      Type: CNAME
+  SPF:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: SPF
+      HostedZoneId: !Ref lockboxservices
+      Name: lockboxservices.com.
+      ResourceRecords:
+      - '"v=spf1 include:_spf.google.com include:_spf.sendergen.com ~all"'
+      TTL: !Ref DefaultTTL
+      Type: SPF
+  MS:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: MS
+      HostedZoneId: !Ref lockboxservices
+      Name: lockboxservices.com.
+      ResourceRecords:
+      - '"MS=ms12122692"'
+      - '"google-site-verification=-f2uzRDLdAVfC0_wICrugBDWRu7akIskaaFEdIe8csc"'
+      TTL: !Ref DefaultTTL
+      Type: TXT
+  DMARC:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: DMARC
+      HostedZoneId: !Ref lockboxservices
+      Name: _dmarc.lockboxservices.com.
+      ResourceRecords:
+      - '"v=DMARC1; p=none; rua=mailto:vpaaxg37@ag.dmarcian.com, mailto:ACole@dentalhero.com"'
+      TTL: !Ref DefaultTTL
+      Type: TXT
+  DKIM:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: DKIM
+      HostedZoneId: !Ref lockboxservices
+      Name: google._domainkey.lockboxservices.com.
+      ResourceRecords:
+      - '"v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCZ7z3L6RxEQ21PqtpcTQ21HSI7ZnHuLnBIpko/kRuSqKNBgZQLUW/2mA35K/oVT5vzCJmaf5YnTaiPOm6cStM3hk1DGGZ5JK2Vs9Av9NnxaOsb9zC3Rw0BarZRBI2u32E3YdPue0w2SZHILe5YmlK5e+mQobfws5PzjftLK7rbiwIDAQAB"'
+      TTL: !Ref DefaultTTL
+      Type: TXT
+  SipFederationTLS:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: SipFederationTLS
+      HostedZoneId: !Ref lockboxservices
+      Name: _sipfederationtls._tcp.lockboxservices.com.
+      ResourceRecords:
+      - 100 1 5061 sipfed.online.lync.com.
+      TTL: !Ref DefaultTTL
+      Type: SRV
+  SipFederationsTLS:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: SipFederationSTLS
+      HostedZoneId: !Ref lockboxservices
+      Name: _sipfederationstls._tcp.lockboxservices.com.
+      ResourceRecords:
+      - 100 1 5061 sipfed.online.lync.com.
+      TTL: !Ref DefaultTTL
+      Type: SRV
+  SipTLS:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: SipTLS
+      HostedZoneId: !Ref lockboxservices
+      Name: _sip._tls.lockboxservices.com.
+      ResourceRecords:
+      - 100 1 443 sipdir.online.lync.com.
+      TTL: !Ref DefaultTTL
+      Type: SRV
+#@                       A	184.175.158.5
+#@                       MX	5	alt2.aspmx.l.google.com.
+#@                       MX	1	aspmx.l.google.com.
+#@                       MX	10	alt4.aspmx.l.google.com.
+#@                       MX	5	alt1.aspmx.l.google.com.
+#@                       MX	10	alt3.aspmx.l.google.com.
+#@                       TXT	( "v=spf1 include:_spf.google.com include:_spf.sendergen.com ~all" )
+#@                       TXT	( "MS=ms12122692" )
+#@                       TXT	( "google-site-verification=-f2uzRDLdAVfC0_wICrugBDWRu7akIskaaFEdIe8csc" )
+#_dmarc                  TXT	( "v=DMARC1; p=none; rua=mailto:vpaaxg37@ag.dmarcian.com, mailto:ACole@dentalhero.com" )
+#google._domainkey       TXT	( "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCZ7z3L6RxEQ21PqtpcTQ21HSI7ZnHuLnBIpko/kRuSqKNBgZQLUW/2mA35K/oVT5vzCJmaf5YnTaiPOm6cStM3hk1DGGZ5JK2Vs9Av9NnxaOsb9zC3Rw0BarZRBI2u32E3YdPue0w2SZHILe5YmlK5e+mQobfws5PzjftLK7rbiwIDAQAB" )
+#_sipfederationstls._tcp SRV	100 1 5061	sipfed.online.lync.com.
+#_sipfederationtls._tcp  SRV	100 1 5061	sipfed.online.lync.com.
+#_sip._tls               SRV	100 1 443	sipdir.online.lync.com.
+#autodiscover            CNAME	mail.r-mail.com.
+#beta                    CNAME	portal.lockboxservices.com.
+#dev-enrollment          A	70.34.148.10
+#dev-iispat              A	70.34.148.10
+#dev-iisprov             A	70.34.148.10
+#dev-portal              A	70.34.148.10
+#dev-wsmisc              A	70.34.148.11
+#dev-wstrans             A	70.34.148.12
+#dev-www                 A	70.34.148.10
+#enrollment              A	184.175.158.5
+#test.enrollment         A	184.175.158.5
+#hipaa                   A	184.175.158.5
+#lyncdiscover            CNAME	webdir.online.lync.com.
+#pmt                     A	184.175.188.233
+#portal                  A	184.175.158.5
+#sip                     CNAME	sipdir.online.lync.com.
+#smart                   CNAME	whs.sendergen.com.
+#smtp                    A	67.98.30.115
+#test                    A	184.175.158.5
+#testmail                A	70.34.148.14
+#wsmisc                  A	184.175.158.5
+#wstrans                 A	184.175.158.5
+#www                     A	184.175.158.5
+#

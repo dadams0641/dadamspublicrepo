@@ -1,0 +1,58 @@
+Description: >
+  CF for Creating The Build Trigger Role
+
+Resources: 
+  BuildTrigger: 
+    Type: "AWS::IAM::Role"
+    Properties: 
+      RoleName: "res-build-trigger-role"
+      ManagedPolicyArns:
+        - !Ref RolePolicies
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - 
+            Effect: "Allow"
+            Principal: 
+              AWS: 
+                - "arn:aws:iam::496307432785:user/AzureDevops/cloud-automation-ci-deploy-StackShackUploader-CQ3IFJ0QFQG3"
+            Action: 
+              - "sts:AssumeRole"
+      Path: "/ci/"
+  RolePolicies: 
+    Type: "AWS::IAM::ManagedPolicy"
+    Properties: 
+      Description: "Policy for handling the Build Trigger Role"
+      ManagedPolicyName: "res-build-trigger-policy"
+      PolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - Effect: "Allow"
+            Action: 
+              - "ssm:DescribeParameters"
+              - "ssm:GetParameter*"
+              - "sts:Get*"
+            Resource: "*"
+          - Effect: "Allow"
+            Action:
+              - "secretsmanager:Describe*"
+              - "secretsmanager:GetSecretValue"
+              - "secretsmanager:ListSecrets"
+            Resource: "*"
+          - Effect: "Allow"
+            Action:
+              - "sts:GetCallerIdentity"
+            Resource: "*"
+          - Effect: "Allow"
+            Action:
+              - "ec2:Describe*"
+            Resource: "*"
+          - Effect: "Allow"
+            Action:
+              - "iam:GetUser"
+              - "iam:List*"
+            Resource: "*"
+          - Effect: "Allow"
+            Action:
+              - "sns:*"
+            Resource: "*"
