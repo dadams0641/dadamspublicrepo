@@ -1,0 +1,13 @@
+print('az webapp create --resource-group ' + rgname + ' --plan ' + myasp + ' --name ' + webapp + ' --runtime "PHP|7.4" --deployment-local-git')
+
+az webapp deployment user set --user-name 'tt-deploy-user' --password 4zuR3d3pl0y!
+
+az webapp create --resource-group teletrack-Sandbox1 --plan teletrack-Sandbox-AppServicePlan --name teletrack-Sandbox-webapp --runtime "PHP|7.4" --deployment-local-git
+
+git clone 'https://tt-deploy-user:4zuR3d3pl0y!@teletrack-sandbox-webapp.scm.azurewebsites.net:443/teletrack-sandbox-webapp.git'
+
+https://None@teletrack-sandbox-webapp.scm.azurewebsites.net/teletrack-Sandbox-webapp.git
+
+
+
+os.system(git clone 'https://tt-deploy-user:4zuR3d3pl0y!@teletrack-sandbox-webapp.scm.azurewebsites.net:443/teletrack-sandbox-webapp.git'; cd teletrack-sandbox-webapp; cp -r ../test_site/* .; git add -A; git commit -m 'updating code via pipeline'; git push origin master)
