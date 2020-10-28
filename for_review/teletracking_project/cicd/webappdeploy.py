@@ -38,3 +38,5 @@ elif update.lower() == "yes":
 else:
     print("No Valid Update Command Given")
     sys.exit(1)
+
+webout.close()
