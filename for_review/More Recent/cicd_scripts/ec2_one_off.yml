@@ -1,0 +1,32 @@
+- hosts: localhost
+  gather_facts: no
+  tasks:
+     - name: "Read AMI ID for use with EC2 Launch"
+       set_fact:
+         ami_id: "{{item}}"
+       with_lines: cat ./ami_id_output
+
+     - debug:
+         var: ami_id
+
+     - set_fact:
+         subnet_id: "{{ lookup('env','Subnet_ID') }}"
+
+     - set_fact:
+         vpc_id: "{{ lookup('env','UsageVpcId') }}"
+
+     - ec2_group_facts:
+         filters:
+           vpc-id: "{{vpc_id}}"
+       register: sg_output
+
+     - set_fact:
+         sg_id: "{{ lookup('env','SG_ID') }}"
+
+     - debug:
+         var: ssh_output.stdout_lines
+
+     - name: Create Keypair Using Key_Material Obtained Using file lookup plugin
+       ec2_key:
+         name: win_test
+         key_material: "{{ lookup('file', '/home/david/.ssh/id_rsa.pub') }}"

@@ -1,0 +1,8 @@
+$EaglePassword = ConvertTo-SecureString "{{ lookup('aws_secret', '/privami/eaglepass', aws_access_key=assumed_role.sts_creds.access_key, aws_secret_key=assumed_role.sts_creds.secret_key, aws_security_token=assumed_role.sts_creds.session_token) }}" -AsPlainText -Force
+$DecoyPassword = ConvertTo-SecureString "{{ lookup('aws_secret', '/privami/decoypass', aws_access_key=assumed_role.sts_creds.access_key, aws_secret_key=assumed_role.sts_creds.secret_key, aws_security_token=assumed_role.sts_creds.session_token) }}" -AsPlainText -Force
+$LocalUser = "eagle"
+$AdminGroup = "Administrators"
+$oldadmin = "Administrator"
+$rename = "oldschool"
+New-LocalUser -Name $LocalUser -FullName "Freedom Local Admin" -AccountNeverExpires -Description "Freedom Local Windows Administrator" -Password $EaglePassword
+Add-LocalGroupMember -Group $AdminGroup -Member $LocalUser

@@ -1,0 +1,47 @@
+#!/bin/env python3
+
+import sys
+import re
+import boto3
+from time import sleep
+
+
+roleSessionName = 'AdminRole'
+sts = boto3.client('sts')
+assumeRole = sts.assume_role(RoleArn=roleArn, RoleSessionName=roleSessionName)
+access_key = assumeRole['Credentials']['AccessKeyId']
+secret_key = assumeRole['Credentials']['SecretAccessKey']
+session_token = assumeRole['Credentials']['SessionToken']
+accountName = re.findall('.*-(.*)', roleArn)
+for aN in accountName:
+    aN = aN
+rds = boto3.client('rds', aws_access_key_id=access_key, aws_secret_access_key=secret_key, aws_session_token=session_token)
+sts = boto3.client('sts', aws_access_key_id=access_key, aws_secret_access_key=secret_key, aws_session_token=session_token)
+AccountInfo = sts.get_caller_identity()
+
+describeInstances = rds.describe_db_instances()
+
+
+print("Account is " + aN)
+
+count = 0
+countx = 0
+for dI in describeInstances['DBInstances']:
+    dbIdentifier = dI['DBInstanceIdentifier']
+    DeleteProtect = dI['DeletionProtection']
+    #print("Checking " + dbIdentifier)
+    if DeleteProtect == False:
+        print(dbIdentifier)
+        #print(dbIdentifier + "'s Deletion Protection is set to " + str(DeleteProtect))
+        #print("Changing to True")
+        #print("modify_db_instance = rds.modify_db_instance(DBInstanceIdentifier = dbIdentifier, DeletionProtection = True)")
+        count = count + 1
+    else:
+        #print(dbIdentifier + "'s Deletion Protection is set to " + str(DeleteProtect))
+        #print("Skipping")
+        countx = countx + 1
+
+count = str(count)
+countx = str(countx)
+print(count + " DB Instances had their Protection changed to True")
+print(countx + " DB Instances were skipped")

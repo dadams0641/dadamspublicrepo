@@ -1,0 +1,28 @@
+- hosts: localhost
+  gather_facts: False
+  vars_files:
+    - ./group_vars/all/vars.yml
+  roles:
+      - launch_ec2
+  tasks:
+    - set_fact:
+        eagle_pass: "{{ lookup('aws_secret', '/privami/eaglepass') }}"
+
+    - add_host:
+        hostname: "{{item}}"
+        groups: new_ec2
+        ansible_user: eagle
+        ansible_password: "{{eagle_pass}}"
+        ansible_connection: winrm
+        ansible_winrm_transport: ntlm
+        ansible_winrm_server_cert_validation: ignore
+      with_lines: cat ./inventory 
+
+- hosts: new_ec2
+  gather_facts: False
+  strategy: free
+  vars_files:
+    - ./group_vars/all/vars.yml
+  roles:
+    - script_run
+

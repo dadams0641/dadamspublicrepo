@@ -1,0 +1,43 @@
+#!/bin/env python3
+
+import os
+import sys
+import re
+import boto3
+import subprocess
+import time
+
+
+# Code Added by David Adams. Assume Functioning Role For Testing and Debugging. Comment Out When Running as Lambda
+roleArn = ''
+roleSessionName = 'AdminRole'
+sts = boto3.client('sts')
+assumeRole = sts.assume_role(RoleArn=roleArn, RoleSessionName=roleSessionName)
+access_key = assumeRole['Credentials']['AccessKeyId']
+secret_key = assumeRole['Credentials']['SecretAccessKey']
+session_token = assumeRole['Credentials']['SessionToken']
+accountName = re.findall('.*-(.*)', roleArn)
+for aN in accountName:
+    aN = aN
+ec2 = boto3.client('ec2', aws_access_key_id=access_key, aws_secret_access_key=secret_key, aws_session_token=session_token)
+sts = boto3.client('sts', aws_access_key_id=access_key, aws_secret_access_key=secret_key, aws_session_token=session_token)
+AccountInfo = sts.get_caller_identity()
+AccountID = AccountInfo['Account']
+csvout = open(aN.upper() + '_sg_report.csv', 'a')
+csvout.write('Account ID,Account Name,Group Name,Group ID,IP Permissions\n')
+describe_security_groups = ec2.describe_security_groups()
+
+for dsg in describe_security_groups['SecurityGroups']:
+    GroupName = dsg['GroupName']
+    IpPermissions = dsg['IpPermissions']
+    GroupId = dsg['GroupId']
+    for ipp in IpPermissions:
+        ipp = str(ipp) 
+        if ipp:
+            ips = re.sub(',',';', ipp)
+        else:
+            ips = "None"
+        csvout.write(AccountID  + "," + aN  + "," + GroupName + "," + GroupId  + "," + ips + "\n")
+
+csvout.close()
+    

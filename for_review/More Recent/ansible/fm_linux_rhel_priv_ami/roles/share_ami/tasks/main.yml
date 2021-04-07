@@ -1,0 +1,15 @@
+ - sts_assume_role:
+     role_arn: "{{rolearn}}"
+     role_session_name: "{{rolename}}"
+   register: assumed_role
+       
+ - set_fact:
+     ami_id: "{{ lookup('aws_ssm', '/ci/Private_{{platform}}_AMI_ID', aws_access_key=assumed_role.sts_creds.access_key, aws_secret_key=assumed_role.sts_creds.secret_key, aws_security_token=assumed_role.sts_creds.session_token) }}"
+     rolearns:
+       - 'arn:aws:iam::211385148200:role/AWSEngineer-POC' 
+       - 'arn:aws:iam::996190702173:role/AWSEngineer-Dev' 
+       - 'arn:aws:iam::667311891221:role/AWSEngineer-Workspaces' 
+       - 'arn:aws:iam::598747928121:role/AWSEngineer-Prod'
+         
+ - include_tasks: share.yml
+   loop: "{{ rolearns }}"

@@ -1,0 +1,112 @@
+ - sts_assume_role:
+    role_arn: "{{rolearn}}"
+    role_session_name: "{{rolename}}"
+   register: assumed_role
+
+ - name: "Read AMI ID for use with EC2 Launch"
+   set_fact:
+     ami_id: "{{ lookup('aws_ssm', '/ci/Current_{{platform}}_AMI_ID', aws_access_key=assumed_role.sts_creds.access_key, aws_secret_key=assumed_role.sts_creds.secret_key, aws_security_token=assumed_role.sts_creds.session_token) }}"
+
+ - ec2_vpc_net_info:
+     aws_access_key: "{{ assumed_role.sts_creds.access_key }}"
+     aws_secret_key: "{{ assumed_role.sts_creds.secret_key }}"
+     security_token: "{{ assumed_role.sts_creds.session_token }}"
+     filters:
+       "tag:Name": "{{vpc_name}}"
+   register: vpc_info
+
+ - debug:
+     var: vpc_info
+
+ - set_fact:
+     vpc_id: "{{vpc_info.vpcs[0].id}}"
+
+ - ec2_vpc_subnet_info:
+     aws_access_key: "{{ assumed_role.sts_creds.access_key }}"
+     aws_secret_key: "{{ assumed_role.sts_creds.secret_key }}"
+     security_token: "{{ assumed_role.sts_creds.session_token }}"
+     filters:
+       "tag:Name": "{{subnet_name}}"
+   register: subnet_info
+
+ - set_fact:
+     subnet_id: "{{subnet_info.subnets[0].id}}"
+
+ - ec2_group_info:
+     aws_access_key: "{{ assumed_role.sts_creds.access_key }}"
+     aws_secret_key: "{{ assumed_role.sts_creds.secret_key }}"
+     security_token: "{{ assumed_role.sts_creds.session_token }}"
+     filters:
+       group_name: "{{sg_name}}"
+   register: group_info
+
+ - set_fact:
+     sg_id: "{{group_info.security_groups[0].group_id}}"
+
+ - debug:
+     var: vpc_id
+ - debug:
+     var: ami_id
+ - debug:
+     var: subnet_id
+ - debug:
+     var: sg_id
+
+ - name: Create Keypair Using Key_Material Obtained Using file lookup plugin
+   ec2_key:
+     aws_access_key: "{{ assumed_role.sts_creds.access_key }}"
+     aws_secret_key: "{{ assumed_role.sts_creds.secret_key }}"
+     security_token: "{{ assumed_role.sts_creds.session_token }}"
+     name: FMDevOpsLinuxKey
+     key_material: "{{ lookup('file', '.ssh/FMDevOpsWindowsKey.pub') }}"
+     state: present
+
+ - amazon.aws.ec2:
+     aws_access_key: "{{ assumed_role.sts_creds.access_key }}"
+     aws_secret_key: "{{ assumed_role.sts_creds.secret_key }}"
+     security_token: "{{ assumed_role.sts_creds.session_token }}"
+     region: "{{aws_region}}"
+     image: "{{ami_id}}"
+     state: present
+     termination_protection: "{{protection}}"
+     instance_type: "{{instance_type}}"
+     instance_tags:
+       AppManager: "{{tags.app_manager}}"
+       AppName: "{{tags.app_name}}"
+       AppOwner: "{{tags.app_owner}}"
+       Automation: "{{tags.automation}}"
+       Backup: "{{tags.backup}}"
+       BusinessUnit: "{{tags.business_unit}}"
+       CostCenter: "{{tags.cost_center}}"
+       CostAllocation: "{{tags.cost_allocation}}"
+       Description: "{{tags.description}}"
+       Environment: "{{tags.environment}}"
+       InstanceManager: "{{tags.instance_manager}}"
+       Name: "{{tags.name}}{{item}}"
+       PatchGroup: "{{tags.patch_group}}"
+       TicketNumber: "{{tags.ticket_number}}"
+     volumes:
+       - device_name: /dev/sda1
+         volume_type: "{{volume_type}}"
+         volume_size: "{{volume_size}}"
+         iops: "{{iop}}"
+         delete_on_termination: "{{term_delete}}"
+     wait: "{{wait}}"
+     group_id: "{{sg_id}}" 
+     vpc_subnet_id: "{{subnet_id}}"
+     assign_public_ip: "{{assign_pub_ip}}"
+     key_name: FMDevOpsWindowsKey
+     user_data: | 
+       #!/bin/env bash
+       groupadd -g 1001 admins
+       hostnamectl set-hostname "{{tags.name}}{{item}}"
+       echo "%admins  ALL=(ALL)       ALL" >> /etc/sudoers
+       <persist>true</persist>
+   register: ec2_output
+   with_sequence: start="{{start_value}}" end="{{end_value}}"
+
+ - include: private.yml
+   when: assign_pub_ip|lower == "no"
+
+ - include: public.yml
+   when: assign_pub_ip|lower == "yes"

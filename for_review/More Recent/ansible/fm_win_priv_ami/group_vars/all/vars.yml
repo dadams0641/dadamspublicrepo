@@ -1,0 +1,36 @@
+rolearn: ""
+rolename: "dadamsadmin"
+platform: "Windows"
+owner: "801119661308"
+ec2_platform: "windows"
+name_regex: "Windows_Server-2019-English*Full*Base*"
+vpc_name: "ss-steam-poc"
+subnet_name: "ss-stream-poc-ecs/Public"
+sg_name: "EC2-AMI-SG"
+tags:
+  app_manager: Security
+  app_name: Windows AMI Creation
+  app_owner: David Adams
+  backup: None
+  business_unit: Information Technology
+  cost_center: None
+  cost_allocation: Technology and Infrastructure
+  description: Cloud Engineering AMI for Windows
+  environment: POC
+  instance_manager: Windows
+  name: in-tamiec2-s191
+  patch_group: None
+  ticket_number: None
+  automation: Ansible
+volume_size: 100
+volume_type: "gp2"
+start_value: 1
+end_value: 1
+protection: "no"
+iop: 1500
+term_delete: "yes"
+assign_pub_ip: "yes"
+aws_region: "us-east-1"
+instance_type: "c5.xlarge"
+share_ids: []
+wait: "yes"

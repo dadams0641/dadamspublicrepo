@@ -1,0 +1,37 @@
+rolearn: ""
+rolename: "dadamsadmin"
+platform: "AmazonLinux"
+owner: "137112412989"
+ec2_description: "Amazon Linux * AMI * gp2"
+ec2_architecture: "x86_64"
+name_regex: "*amzn*"
+vpc_name: "ss-steam-poc"
+subnet_name: "ss-stream-poc-ecs/Public"
+sg_name: "EC2-AMI-SG"
+tags:
+  app_manager: CloudEngineering
+  app_name: Windows Testing
+  app_owner: David Adams
+  backup: None
+  business_unit: Information Technology
+  cost_center: None
+  cost_allocation: Technology and Infrastructure
+  description: Cloud Engineering Testing
+  environment: Production
+  instance_manager: Windows
+  name: in-pdadams-s19
+  patch_group: None
+  ticket_number: None
+  automation: Ansible
+volume_size: 150
+volume_type: "io1"
+start_value: 1
+end_value: 1
+protection: "no"
+iop: 1500
+term_delete: "yes"
+assign_pub_ip: "yes"
+aws_region: "us-east-1"
+instance_type: "c5.xlarge"
+share_ids: []
+wait: "yes"

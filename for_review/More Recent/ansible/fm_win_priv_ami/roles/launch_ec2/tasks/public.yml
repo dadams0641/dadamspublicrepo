@@ -1,0 +1,21 @@
+ - debug:
+     var: ec2_output.results[{{item.0}}].instances[0].public_ip
+   with_indexed_items: "{{ec2_output.results}}"
+
+ - set_fact:
+     new_ec2_ip: 
+       - "{{ec2_output.results[item.0].instances[0].public_ip}}"
+     new_instance_id: 
+       - "{{ec2_output.results[item.0].instances[0].id}}"
+   with_indexed_items: "{{ec2_output.results}}"
+
+ - debug:
+     var: new_ec2_ip
+
+ - name: Copy New Instance ID To File Just In Case
+   local_action:  "copy content={{ new_instance_id[0] }} dest=./fm_instance_id{{item.0+1}}"
+   with_indexed_items: "{{ec2_output.results}}"
+
+ - name: And Now Copy New IP Address To File Just In Case
+   local_action: "copy content={{ new_ec2_ip[0] }} dest=./fm_instance_ip_address{{item.0+1}}"
+   with_indexed_items: "{{ec2_output.results}}"

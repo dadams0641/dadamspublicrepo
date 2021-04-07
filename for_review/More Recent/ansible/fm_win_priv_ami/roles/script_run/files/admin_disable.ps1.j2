@@ -1,0 +1,10 @@
+$EaglePassword = ConvertTo-SecureString "{{ lookup('aws_secret', '/privami/eaglepass', aws_access_key=assumed_role.sts_creds.access_key, aws_secret_key=assumed_role.sts_creds.secret_key, aws_security_token=assumed_role.sts_creds.session_token) }}" -AsPlainText -Force
+$DecoyPassword = ConvertTo-SecureString "{{ lookup('aws_secret', '/privami/decoypass', aws_access_key=assumed_role.sts_creds.access_key, aws_secret_key=assumed_role.sts_creds.secret_key, aws_security_token=assumed_role.sts_creds.session_token) }}" -AsPlainText -Force
+$AdminGroup = "Administrators"
+$UserGroup = "Users"
+$oldadmin = "Administrator"
+$rename = "oldschool"
+$oldadmin | Set-LocalUser -Password $DecoyPassword
+Rename-LocalUser -Name $oldadmin -NewName $rename
+Disable-LocalUser -Name $rename
+New-LocalUser $oldadmin -Password $DecoyPassword -FullName "Windows Administrator" -Description "Default Windows Administrator."

@@ -1,0 +1,34 @@
+iam_profile_name: "ec2-windows-standard-role"
+platform: "Windows"
+vpc_name: "FreeCloud"
+subnet_name: "private-subnet-1a"
+sg_name: "Freedom"
+tags:
+  app_manager: CloudEngineering
+  app_name: Windows Testing
+  app_owner: David Adams
+  backup: "{\"Snapshot\":{\"time\":{\"interval\":24},\"retention\":10,\"volumes\":[\"all\"]}}"
+  business_unit: Information Technology
+  cost_center: None
+  cost_allocation: Technology and Infrastructure
+  description: Cloud Engineering Testing
+  environment: PROD
+  instance_manager: Windows
+  name: in-pcetest-s19
+  patch_group: None
+  ticket_number: None
+  automation: Ansible
+volumes:
+  name: "/dev/sda1"
+  size: 100
+  type: "gp2"
+  encryption: "true"
+start_value: 1
+end_value: 15
+protection: "no"
+iop: 1500
+term_delete: "yes"
+assign_pub_ip: "no"
+aws_region: "us-east-1"
+instance_type: "c5.xlarge"
+wait: "no"

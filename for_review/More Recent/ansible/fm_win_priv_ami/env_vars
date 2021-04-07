@@ -1,0 +1,14 @@
+#!/bin/bash
+
+export QA='452492757303'
+export DEV ='183406521668'
+export STAGING='438313809893'
+export PROD='182702502117'
+export POC='913474001465'
+
+export REGION='us-east-2'
+export ACCOUNT='008982289639'
+export SG_ID='sg-0afc6dcdb678283e8'
+export UsageVpcId='vpc-0a903df273d2ef6cd'
+export Subnet_ID='subnet-0c6a5526966b51d5f'
+

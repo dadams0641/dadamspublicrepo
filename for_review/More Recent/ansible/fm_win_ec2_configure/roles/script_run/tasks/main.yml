@@ -1,0 +1,4 @@
+ - set_fact:
+     eagle_pass: "{{ lookup('aws_secret', '/privami/eaglepass') }}"
+
+ - include: script_run.yml

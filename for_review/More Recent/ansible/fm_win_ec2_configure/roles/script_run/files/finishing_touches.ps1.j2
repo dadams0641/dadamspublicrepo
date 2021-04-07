@@ -1,0 +1,15 @@
+$domain = "fhmc.local"
+$password = "{{ lookup('aws_secret', 'aws-adj') }}" | ConvertTo-SecureString -asPlainText -Force
+$username = "$domain\srv_server_automate"
+$credential = New-Object System.Management.Automation.PSCredential($username,$password)
+$AdminGroup = "Administrators"
+$grouplist = "LocalAdminsysAccnts", "grp_dl_windows_servers_administrators"
+foreach ($group in $grouplist) {
+    Add-LocalGroupMember -Group $AdminGroup -Member $domain\$group
+}
+
+Get-WindowsCapability -Name RSAT* -Online
+Add-WindowsCapability -Name RSAT* -Online
+Install-WindowsFeature RSAT-AD-Powershell
+Set-ADComputer -Identity "{{ec2name}}" -Description "{{tags.description}}" -credential $credential
+#Get-ADComputer -Identity "{{ec2name}}" -Properties * -credential $credential

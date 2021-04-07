@@ -1,0 +1,77 @@
+#!/usr/bin/env python3
+
+import sys
+import re
+import boto3
+from time import sleep
+import datetime
+
+current_date = datetime.datetime.now()
+currdate = current_date.strftime("%Y-%m-%d")
+currdate_split = currdate.split('-')
+
+roleArnList = []
+
+
+for rA in roleArnList:
+    roleArn = rA
+    print("Operating under Role ARN: " + roleArn)
+    roleSessionName = 'AdminRole'
+    sts = boto3.client('sts')
+    assumeRole = sts.assume_role(RoleArn=roleArn, RoleSessionName=roleSessionName)
+    access_key = assumeRole['Credentials']['AccessKeyId']
+    secret_key = assumeRole['Credentials']['SecretAccessKey']
+    session_token = assumeRole['Credentials']['SessionToken']
+    accountName = re.findall('.*-(.*)', roleArn)
+    for aN in accountName:
+        aN = aN
+    ec2 = boto3.client('ec2', aws_access_key_id=access_key, aws_secret_access_key=secret_key, aws_session_token=session_token)
+    sts = boto3.client('sts', aws_access_key_id=access_key, aws_secret_access_key=secret_key, aws_session_token=session_token)
+    AccountInfo = sts.get_caller_identity()
+    AccountID = AccountInfo['Account']
+    describeInstances = ec2.describe_instances()
+    hostname = False
+    instance_manager = False
+    elb_instance = False
+    beanstalk_value = False
+    csvoutput = open('./' + aN + '_EC2_Protection_Disabled.csv', 'a')
+    csvoutput.write('Account ID,Instance ID,Server Name,Launch Date,Instance Manager,Termination Protection\n')
+    print("Account is " + aN)
+    count = 0
+    countx = 0
+    for dI in describeInstances['Reservations']:
+        Instances = dI['Instances'][0]
+        launch_time = Instances['LaunchTime']
+        launch_time = str(launch_time.strftime("%Y-%m-%d"))
+        InstanceIds = Instances['InstanceId']
+        describe_instance_attribute = ec2.describe_instance_attribute(Attribute='disableApiTermination', InstanceId = InstanceIds) 
+        termination_protection = describe_instance_attribute['DisableApiTermination']['Value']
+        if termination_protection == True:
+            countx = countx + 1
+            print("Skipping...")
+        else:
+            describe_tags = ec2.describe_tags(Filters = [{'Name': 'resource-id', 'Values': [InstanceIds]}])
+            for dt in describe_tags['Tags']:
+                keyname = dt['Key']
+                if keyname == "Name":
+                    hostname = dt['Value']
+                if keyname == "InstanceManager":
+                    instance_manager = dt['Value']
+                if keyname == "aws:cloudformation:logical-id":
+                    beanstalk_value = dt['Value']
+                    elb_instance = True
+            modify_attribute = ec2.modify_instance_attribute(DisableApiTermination={'Value': True}, InstanceId=InstanceIds)
+            if instance_manager == False:
+                instance_manager = "None Listed"
+            if hostname == False:
+                hostname == "None Listed"
+            if elb_instance == False:
+                count = count + 1
+                csvoutput.write(aN + "-" + AccountID + "," + InstanceIds + "," + hostname + "," + launch_time + "," + instance_manager + "," + str(termination_protection) + "\n")
+                print("Termination Protection Is Now Enabled on Instance ID: " + InstanceIds)
+            if elb_instance == True:
+                count = count + 1
+                print("Elastic Beanstalk Machine Found. Skipping...")
+    print(str(count) + " Servers had their Protection changed.")
+    print(str(countx) + " Servers skipped.")
+    csvoutput.close()

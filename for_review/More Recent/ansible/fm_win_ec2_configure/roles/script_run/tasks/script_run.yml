@@ -1,0 +1,84 @@
+ - name: Wait for Box To Be Available 
+   wait_for_connection:
+   
+ - shell: "aws ec2 describe-instances --filter \"Name=private-ip-address,Values={{inventory_hostname}}\" --query \"Reservations[*].Instances[*].Tags[?Key=='Name'].Value\" --output text"
+   register: output
+   delegate_to: localhost
+
+ - set_fact:
+     ec2name: "{{output.stdout}}"
+   delegate_to: localhost
+
+ - debug:
+      var: ec2name
+   delegate_to: localhost
+
+ - name: Rename The Machine
+   win_command: "powershell Rename-Computer -NewName {{ec2name}}"
+   
+ - name: Copy Template Scripts For Running
+   ansible.windows.win_template:
+     src: "files/{{item}}.ps1.j2"
+     dest: "C:\\temp\\{{item}}.ps1"
+   loop:
+     - "ad_join"
+     - "wincollect-installer"
+     - "finishing_touches"
+
+ - name: Copy Files To Host
+   win_copy:
+     remote_src: no
+     src: "{{item}}"
+     dest: c:\temp\
+   loop:
+     - "files/activate_windows.ps1"
+     - "files/disable_windows_stuffs.ps1"
+     - "files/postServerDeployment.ps1"
+     - "files/diskadd.ps1"
+ 
+ - name: Restart Computer For Settings To Take Effect
+   win_reboot: 
+
+ - name: Run Powershell Scripts
+   win_command: "{{item}}"
+   args:
+     chdir: c:\temp\
+   loop:
+     - "powershell c:\\temp\\activate_windows.ps1"
+     - "powershell c:\\temp\\disable_windows_stuffs.ps1"
+     - "powershell c:\\temp\\ad_join.ps1"
+     - "powershell c:\\temp\\diskadd.ps1"
+     - "powershell c:\\temp\\finishing_touches.ps1"
+
+ - name: Install Cisco AMP and WinCollect
+   win_command: "{{item}}"
+   args:
+     chdir: c:\temp\
+   loop:
+     #- "powershell ./amp_FHMC_Server_Group.exe /R /S"
+     - "powershell c:\\temp\\wincollect-installer.ps1"
+     - "powershell sleep 10"
+   
+ - name: Clean Up Temp Files
+   ansible.windows.win_file:
+     path: "C:\\temp\\{{item}}.ps1"
+     state: absent
+   loop:
+     - "ad_join"
+     - "disable_windows_stuffs"
+     - "activate_windows"
+     - "wincollect-installer"
+     - "finishing_touches"
+     - "diskadd"
+
+ - name: Final Reboot for OU changes
+   win_reboot: 
+
+ - name: Run Windows Update and Reboot Machine
+   ansible.windows.win_updates:
+     category_names:
+       - SecurityUpdates
+       - CriticalUpdates
+       - UpdateRollups
+     state: installed
+     reboot: yes

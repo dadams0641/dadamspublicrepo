@@ -1,0 +1,41 @@
+- sts_assume_role:
+   role_arn: "{{rolearn}}"
+   role_session_name: "{{rolename}}"
+  register: assumed_role
+
+
+- name: "Find Suitable AMI"
+  ec2_ami_info:
+    aws_access_key: "{{ assumed_role.sts_creds.access_key }}"
+    aws_secret_key: "{{ assumed_role.sts_creds.secret_key }}"
+    security_token: "{{ assumed_role.sts_creds.session_token }}"
+    owners: "{{owner}}"
+    filters:
+      name: "{{name_regex}}"
+  register: output_ec2
+
+- debug:
+    var: output_ec2
+
+- set_fact:
+   oec2_amiid: "{{ (output_ec2.images | sort(attribute='creation_date') | list)[-1].image_id}}"
+- debug:
+    var: oec2_amiid
+
+- set_fact:
+   oec2_aminame: "{{ (output_ec2.images | sort(attribute='creation_date') | list)[-1].description}}"
+- debug:
+    var: oec2_aminame
+
+- name: Copy AMI ID To File Just In Case
+  local_action:  copy content={{oec2_amiid}} dest=./ami_id_output
+
+- name: Write Current AMI ID to SSM
+  aws_ssm_parameter_store:
+    aws_access_key: "{{ assumed_role.sts_creds.access_key }}"
+    aws_secret_key: "{{ assumed_role.sts_creds.secret_key }}"
+    security_token: "{{ assumed_role.sts_creds.session_token }}"
+    name: "/ci/Current_{{platform}}_AMI_ID"
+    description: "The current AMI ID for Freedom Mortgage {{platform}} AMIs."
+    value: "{{oec2_amiid}}"
+

@@ -1,0 +1,11 @@
+ - debug:
+     var: ec2_output.results[{{item.0}}].instances[0].public_ip
+   with_indexed_items: "{{ec2_output.results}}"
+
+ - name: Create Inventory File with Public IP Addresses
+   ansible.builtin.lineinfile:
+     path: ./inventory
+     line: "{{ec2_output.results[item.0].instances[0].public_ip}}"
+     insertafter: EOF
+     create: yes
+   with_indexed_items: "{{ec2_output.results}}"

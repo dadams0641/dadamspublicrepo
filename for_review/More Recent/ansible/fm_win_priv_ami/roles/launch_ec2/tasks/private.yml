@@ -1,0 +1,54 @@
+ - debug:
+     var: ec2_output.results[{{item.0}}].instances[0].private_ip
+   with_indexed_items: "{{ec2_output.results}}"
+
+ - set_fact:
+     new_ec2_ip: 
+       - "{{ec2_output.results[item.0].instances[0].private_ip}}"
+     new_instance_id: 
+       - "{{ec2_output.results[item.0].instances[0].id}}"
+   with_indexed_items: "{{ec2_output.results}}"
+
+ - name: Copy New Instance ID To File Just In Case
+   local_action:  "copy content={{ new_instance_id[item.0] }} dest=./fm_instance_id{{item.0+1}}"
+   with_indexed_items: "{{ec2_output.results}}"
+
+ - name: And Now Copy New IP Address To File Just In Case
+   local_action: "copy content=new_ec2_ip[item.0] dest=./fm_instance_ip_address{{item.0+1}}"
+   with_indexed_items: "{{ec2_output.results}}"
+
+ - debug:
+     var: new_ec2_ip[item.0]
+   with_indexed_items: "{{ec2_output.results}}"
+ 
+ - add_host:
+     hostname: "{{ new_ec2_ip[item.0] }}" 
+     ansible_user: administrator
+     ansible_password: "{{ lookup('aws_secret', '/privami/userpass', aws_access_key=assumed_role.sts_creds.access_key, aws_secret_key=assumed_role.sts_creds.secret_key, aws_security_token=assumed_role.sts_creds.session_token) }}"
+     ansible_connection: winrm
+     ansible_winrm_transport: ntlm
+     ansible_winrm_server_cert_validation: ignore
+   with_indexed_items: "{{ec2_output.results}}"
+
+ - debug:
+     var: new_ec2_ip
+
+ - name: Wait for Box To Be Available
+   wait_for_connection:
+   delegate_to: "{{ new_ec2_ip[item.0] }}"
+   with_indexed_items: "{{ec2_output.results}}"
+
+ - name: Reboot Machine To Apply Settings
+   win_reboot:
+   delegate_to: "{{ new_ec2_ip[item.0] }}"
+   with_indexed_items: "{{ec2_output.results}}"
+
+ - name: Check if Script Complete
+   win_stat:
+     path: c:\temp\complete.txt
+   register: complete_txt
+   until: complete_txt.stat.exists == True
+   retries: 10
+   delay: 20 
+   delegate_to: "{{ new_ec2_ip[item.0] }}"
+   with_indexed_items: "{{ec2_output.results}}"

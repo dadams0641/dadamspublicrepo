@@ -1,0 +1,10 @@
+- hosts: localhost
+  gather_facts: False
+  vars_files:
+    - ./group_vars/all/vars.yml
+  roles:
+      - win_cis_discover 
+      - launch_ec2
+      - script_run
+      - priv_create 
+      - share_ami

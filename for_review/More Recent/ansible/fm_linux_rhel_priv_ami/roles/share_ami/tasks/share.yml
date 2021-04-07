@@ -1,0 +1,14 @@
+ - name: Setup Role Assumption 
+   sts_assume_role:
+     role_arn: "{{item}}"
+     role_session_name: "{{rolename}}"
+   register: assumed_role
+   
+ - name: Promote AMI ID to Additional AWS Accounts
+   aws_ssm_parameter_store:
+     aws_access_key: "{{ assumed_role.sts_creds.access_key }}"
+     aws_secret_key: "{{ assumed_role.sts_creds.secret_key }}"
+     security_token: "{{ assumed_role.sts_creds.session_token }}"
+     name: "/ci/Private_{{platform}}_AMI_ID"
+     description: "The ID for the {{tags.environment|title}} AMI"
+     value: "{{ami_id}}"

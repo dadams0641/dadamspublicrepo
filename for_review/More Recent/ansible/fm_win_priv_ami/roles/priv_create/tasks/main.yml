@@ -1,0 +1,74 @@
+ - sts_assume_role:
+    role_arn: "{{rolearn}}"
+    role_session_name: "{{rolename}}"
+   register: assumed_role
+   
+ - name: Gather Local Date
+   shell: date | awk '{print $2$3$6}'
+   register: date_output
+
+ - set_fact:
+     date: "{{date_output.stdout_lines[0]}}"
+
+ - name: Deregister old AMI if Exists
+   ec2_ami:
+     aws_access_key: "{{ assumed_role.sts_creds.access_key }}"
+     aws_secret_key: "{{ assumed_role.sts_creds.secret_key }}"
+     security_token: "{{ assumed_role.sts_creds.session_token }}"
+     image_id: "{{ lookup('aws_ssm', '/ci/Private_{{platform}}_AMI_ID', aws_access_key=assumed_role.sts_creds.access_key, aws_secret_key=assumed_role.sts_creds.secret_key, aws_security_token=assumed_role.sts_creds.session_token) }}"
+     state: absent
+   ignore_errors: true
+
+ - name: Create private AMI from CIS Instance
+   ec2_ami:
+     aws_access_key: "{{ assumed_role.sts_creds.access_key }}"
+     aws_secret_key: "{{ assumed_role.sts_creds.secret_key }}"
+     security_token: "{{ assumed_role.sts_creds.session_token }}"
+     name: "FM_{{platform|upper}}_{{tags.environment|upper}}_{{date}}"
+     instance_id: "{{item}}"
+     state: present
+     root_device_name: /dev/sda1
+     device_mapping: 
+       - device_name: /dev/sda1
+         volume_size: "{{volume_size}}"
+         delete_on_termination: "{{term_delete}}"
+         volume_type: "{{volume_type}}"
+         #iops: "{{iop}}"
+     tags:
+       automation: 'Ansible {{ ansible_version.string }}'
+       TechnicalOwner: AWS Cloud Engineers
+     wait: yes
+     wait_timeout: 3600
+     launch_permissions:
+       user_ids: "{{share_ids}}" 
+   ignore_errors: true
+   register: output_ami_id
+   with_lines: cat ./fm_instance_id1
+    
+ - debug:
+     var: output_ami_id.results[0].image_id 
+
+ - set_fact:
+     ami_id: "{{output_ami_id.results[0].image_id}}"
+
+ - name: Write AMI ID to Paramter Store
+   aws_ssm_parameter_store:
+     aws_access_key: "{{ assumed_role.sts_creds.access_key }}"
+     aws_secret_key: "{{ assumed_role.sts_creds.secret_key }}"
+     security_token: "{{ assumed_role.sts_creds.session_token }}"
+     name: "/ci/Private_{{platform}}_AMI_ID"
+     description: "The ID for the {{tags.environment|title}} AMI"
+     value: "{{ami_id}}"
+
+ - name: Copy AMI ID To File Just In Case
+   local_action: copy content={{ami_id}} dest=./private_ami_id
+
+ - name: Stop Running Instance To Prevent Over Billing 
+   ec2_instance:
+     aws_access_key: "{{ assumed_role.sts_creds.access_key }}"
+     aws_secret_key: "{{ assumed_role.sts_creds.secret_key }}"
+     security_token: "{{ assumed_role.sts_creds.session_token }}"
+     state: absent
+     filters:
+     instance_ids: "{{item}}"
+   with_lines: cat ./fm_instance_id1

@@ -1,0 +1,21 @@
+param([switch]$Elevated)
+function Check-Admin {
+$currentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())
+$currentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
+}
+if ((Check-Admin) -eq $false)  {
+if ($elevated)
+{
+}
+ else {
+ Start-Process powershell.exe -Verb RunAs -ArgumentList ('-noprofile -noexit -file "{0}" -elevated' -f ($myinvocation.MyCommand.Definition))
+}
+exit
+}
+
+$domain = "fhmc.local"
+$password = "{{ lookup('aws_secret', 'aws-adj') }}" | ConvertTo-SecureString -asPlainText -Force
+$username = "$domain\srv_server_automate" 
+$oupath = "OU=Amazon,OU=Staging Servers,OU=Domain Servers,DC=fhmc,DC=local"
+$credential = New-Object System.Management.Automation.PSCredential($username,$password)
+Add-Computer -DomainName $domain -Credential $credential -OUPath $oupath

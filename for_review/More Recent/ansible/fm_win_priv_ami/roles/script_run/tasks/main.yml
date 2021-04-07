@@ -1,0 +1,39 @@
+ - sts_assume_role:
+     role_arn: "{{rolearn}}"
+     role_session_name: "{{rolename}}"
+   register: assumed_role
+
+ - set_fact:
+     new_ec2: "{{item}}"
+   with_lines: cat ./fm_instance_ip_address1
+
+ - set_fact:
+     ansible_pass: "{{ lookup('aws_secret', '/privami/userpass', aws_access_key=assumed_role.sts_creds.access_key, aws_secret_key=assumed_role.sts_creds.secret_key, aws_security_token=assumed_role.sts_creds.session_token) }}"
+
+ - debug:
+     var: new_ec2
+
+ - add_host:
+     hostname: "{{new_ec2}}"
+     ansible_user: Administrator
+     ansible_password: "{{ansible_pass}}"
+     ansible_connection: winrm
+     ansible_winrm_transport: ntlm
+     ansible_winrm_server_cert_validation: ignore
+
+
+ - name: Wait for Box To Be Available
+   wait_for_connection:
+   delegate_to: "{{new_ec2}}"
+
+ - name: Reboot Machine To Apply Settings
+   win_reboot:
+   delegate_to: "{{new_ec2}}"
+
+ - include: private.yml
+   when: assign_pub_ip|lower == "no"
+
+ - include: public.yml
+   when: assign_pub_ip|lower == "yes"
+
+ - include: eagle_run.yml
