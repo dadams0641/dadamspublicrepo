@@ -1,0 +1,17 @@
+#!/usr/local/bin/env python3 
+
+import sys
+from time import sleep
+
+
+fib_counter = 0
+fib_list = []
+count = 0
+while fib_counter < 11:
+    fib_counter = fib_counter + count
+    fib_list.append(fib_counter)
+    for fl in fib_list:
+        print(fl)
+        
+    sleep(.5)
+
