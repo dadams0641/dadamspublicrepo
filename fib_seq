@@ -5,13 +5,11 @@ from time import sleep
 
 
 fib_counter = 0
+count = 1
 fib_list = []
-count = 0
-while fib_counter < 11:
-    fib_counter = fib_counter + count
+while True:
     fib_list.append(fib_counter)
-    for fl in fib_list:
-        print(fl)
-        
+    print(fib_counter)
+    fib_counter = fib_counter + count
+    count = count + fib_counter
     sleep(.5)
-
