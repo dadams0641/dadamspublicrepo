@@ -1,5 +1,5 @@
 #!/bin/env bash
-
+set -x
 
 #Ensure user is running as sudo
 sudo_check=$(env | grep -i sudo_user)
