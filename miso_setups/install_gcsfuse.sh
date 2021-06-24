@@ -14,3 +14,4 @@ echo "deb http://packages.cloud.google.com/apt $GCSFUSE_REPO main" | tee /etc/ap
 curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 apt update
 apt -y install gcsfuse
+sed -i 's/#user_allow_other/user_allow_other/g' /etc/fuse.conf

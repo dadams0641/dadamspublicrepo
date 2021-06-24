@@ -35,7 +35,7 @@ print("Running SNAP Installer for CMAKE Classic.")
 os.system("snap install cmake --classic")
 
 print("Running First APT Installs for GIT, GAWK, and ASCIIDOC-BASE (A2X).")
-os.system("apt update; apt install git gawk asciidoc-base -y")
+os.system("apt update; apt install git gawk asciidoc-base make -y")
 os.system("echo 'yes' | git clone --recursive https://github.com/reconquest/shdoc; cd shdoc; make install")
 
 print("Finalizing Settings.")
