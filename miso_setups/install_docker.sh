@@ -19,3 +19,4 @@ echo \
 apt update
 apt -y install docker-ce docker-ce-cli containerd.io
 usermod -aG docker $USER
+echo "%docker ALL= /usr/bin/docker" >> /etc/sudoers
