@@ -18,4 +18,3 @@ sudo $SETUPDIR/install_gcsfuse.sh
 $SETUPDIR/miso-apt.sh 
 sudo $SETUPDIR/install_miso_docker_and_bash.sh
 sudo $SETUPDIR/miso-docker_prereq_setup.py
-./miso-gcsfuse-setup.py
