@@ -14,6 +14,8 @@ SETUPDIR="miso_setups"
 sudo $SETUPDIR/install_docker.sh 
 sudo $SETUPDIR/install_docker_compose.sh
 sudo $SETUPDIR/install_gc_sdk.sh 
+gcloud auth login
+gcloud auth application-default login
 sudo $SETUPDIR/install_gcsfuse.sh
 $SETUPDIR/miso-apt.sh 
 sudo $SETUPDIR/install_miso_docker_and_bash.sh
