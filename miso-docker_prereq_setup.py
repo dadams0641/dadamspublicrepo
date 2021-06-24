@@ -19,8 +19,7 @@ else:
 
 print("Building App Variables from Environment.")
 user = sc
-print(sc)
-sys.exit(0)
+
 print("Running SNAP Installer for CMAKE Classic.")
 os.system("snap install cmake --classic")
 
@@ -30,8 +29,12 @@ os.system("git clone --recursive https://github.com/reconquest/shdoc; cd shdoc; 
 
 print("Setting Up Miso Apt. This may take a while.")
 os.mkdir("/miso-apt")
-os.system("chown $USER: /miso-apt")
+os.system("chown " + sc + ": /miso-apt")
 os.system("gcsfuse -o ro,allow_other --implicit-dirs miso-apt /miso-apt")
 os.system('echo "deb [trusted=yes] file:/miso-apt/debs/amd64 ./" | tee /etc/apt/sources.list.d/miso-latest.list')
 os.system('apt update')
 os.system('apt install miso-docker-core miso-docker-help -y')
+
+print("Finalizing Settings.")
+os.system("cd /; git clone git@github.com:MisoRobotics/miso-docker.git; chown " + sc + ": /miso-docker")
+print("Setup Complete. If you are running this in a Development Environment you may need to run bootstrap.sh located in the Miso-Docker Repo. \n For your convenience, the Miso-Docker Repo has been cloned to /miso-docker and set to the ownership of " + sc + ".")
