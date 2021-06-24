@@ -40,6 +40,7 @@ os.system("echo 'yes' | git clone --recursive https://github.com/reconquest/shdo
 
 print("Finalizing Settings.")
 os.system("cd /; echo 'yes' | git clone git@github.com:MisoRobotics/miso-docker.git; chown " + user + ": /miso-docker")
+os.system("usermod -aG docker " + user)
 print("Setup Complete. If you are running this in a Development Environment you may need to run bootstrap.sh located in the Miso-Docker Repo. \n For your convenience, the Miso-Docker Repo has been cloned to /miso-docker and set to the ownership of " + user + ".")
 os.system("rm -f /root/.ssh/*")
 
