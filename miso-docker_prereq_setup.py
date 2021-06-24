@@ -17,6 +17,9 @@ else:
     print("Not Running as Sudo. Exiting.")
     sys.exit(1)
 
+
+os.system("echo $USER")
+sys.exit(0)
 print("Running SNAP Installer for CMAKE Classic.")
 os.system("snap install cmake --classic")
 
