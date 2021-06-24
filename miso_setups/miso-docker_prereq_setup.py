@@ -38,13 +38,6 @@ print("Running First APT Installs for GIT, GAWK, and ASCIIDOC-BASE (A2X).")
 os.system("apt update; apt install git gawk asciidoc-base -y")
 os.system("echo 'yes' | git clone --recursive https://github.com/reconquest/shdoc; cd shdoc; make install")
 
-print("Setting Up Miso Apt. This may take a while.")
-try:
-    os.mkdir("/miso-apt")
-except:
-    pass
-os.system("chown " + user + ": /miso-apt")
-
 print("Finalizing Settings.")
 os.system("cd /; echo 'yes' | git clone git@github.com:MisoRobotics/miso-docker.git; chown " + user + ": /miso-docker")
 print("Setup Complete. If you are running this in a Development Environment you may need to run bootstrap.sh located in the Miso-Docker Repo. \n For your convenience, the Miso-Docker Repo has been cloned to /miso-docker and set to the ownership of " + user + ".")
