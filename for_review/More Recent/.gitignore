@@ -5,3 +5,8 @@
 
 # ignore local terraform directory
 **/.terraform/*
+
+# ignore Mac and System Files
+.fake
+.ionide
+.DS_Store
